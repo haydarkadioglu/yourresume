@@ -9,34 +9,18 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { Trash2, PlusCircle, Loader2 } from "lucide-react";
 import Link from 'next/link';
+import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 import { getResumeData, saveResumeData } from "@/lib/firestore";
 import { mockResumeData } from "@/lib/mock-data";
-
-const initialResumeData: ResumeData = {
-  personalInfo: {
-    name: "",
-    title: "",
-    email: "",
-    phone: "",
-    website: "",
-    linkedin: "",
-    github: "",
-    summary: "",
-    username: "",
-  },
-  skills: [],
-  experience: [],
-  education: [],
-  projects: [],
-  certifications: [],
-};
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const TABS = ["personal", "skills", "experience", "education", "projects", "certifications"];
 
@@ -57,8 +41,12 @@ export default function DashboardPage() {
   useEffect(() => {
     if (user) {
       const fetchData = async () => {
-        const resumeData = await getResumeData(user.uid);
+        let resumeData = await getResumeData(user.uid);
         if (resumeData) {
+            // Ensure template exists, default if not
+            if (!resumeData.personalInfo.template) {
+                resumeData.personalInfo.template = 'classic';
+            }
           setData(resumeData);
         } else {
           setData({
@@ -67,6 +55,7 @@ export default function DashboardPage() {
                   ...mockResumeData.personalInfo,
                   email: user.email || '',
                   username: '',
+                  template: 'classic',
               }
           })
         }
@@ -142,6 +131,19 @@ export default function DashboardPage() {
         }
     })
   }
+
+  const handleTemplateChange = (value: 'classic' | 'modern' | 'minimalist') => {
+      setData(prev => {
+          if(!prev) return null;
+          return {
+              ...prev,
+              personalInfo: {
+                  ...prev.personalInfo,
+                  template: value
+              }
+          }
+      })
+  }
   
   const handleItemChange = <T extends { id: string }>(
     field: keyof ResumeData,
@@ -159,7 +161,7 @@ export default function DashboardPage() {
 
   if (authLoading || !user || !data) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
+      <div className="flex justify-center items-center min-h-screen bg-background">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
@@ -170,7 +172,8 @@ export default function DashboardPage() {
       <header className="bg-card border-b p-4">
         <div className="container mx-auto flex justify-between items-center">
           <h1 className="text-2xl font-bold font-headline text-primary">Dashboard</h1>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
             <Button asChild variant="outline" disabled={!data.personalInfo.username}>
               <Link href={`/cv/${data.personalInfo.username}`} target="_blank">View My CV</Link>
             </Button>
@@ -193,7 +196,36 @@ export default function DashboardPage() {
                 <CardTitle className="font-headline">Personal Information</CardTitle>
                 <CardDescription>This information will appear at the top of your resume.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-6">
+                
+                {/* Template Selection */}
+                <div className="space-y-3">
+                    <Label>Template</Label>
+                    <RadioGroup
+                        value={data.personalInfo.template}
+                        onValueChange={handleTemplateChange}
+                        className="grid grid-cols-2 md:grid-cols-3 gap-4"
+                    >
+                       <Label htmlFor="classic" className="border-2 border-transparent has-[:checked]:border-primary rounded-lg p-1 transition-all">
+                           <RadioGroupItem value="classic" id="classic" className="sr-only"/>
+                           <Image src="https://placehold.co/300x400.png" alt="Classic Template" width={300} height={400} className="rounded-md w-full aspect-[3/4] object-cover" data-ai-hint="resume classic" />
+                           <p className="text-center font-medium mt-2">Classic</p>
+                       </Label>
+                       <Label htmlFor="modern" className="border-2 border-transparent has-[:checked]:border-primary rounded-lg p-1 transition-all">
+                           <RadioGroupItem value="modern" id="modern" className="sr-only"/>
+                           <Image src="https://placehold.co/300x400.png" alt="Modern Template" width={300} height={400} className="rounded-md w-full aspect-[3/4] object-cover" data-ai-hint="resume modern" />
+                           <p className="text-center font-medium mt-2">Modern</p>
+                       </Label>
+                       <Label htmlFor="minimalist" className="border-2 border-transparent has-[:checked]:border-primary rounded-lg p-1 transition-all">
+                           <RadioGroupItem value="minimalist" id="minimalist" className="sr-only"/>
+                           <Image src="https://placehold.co/300x400.png" alt="Minimalist Template" width={300} height={400} className="rounded-md w-full aspect-[3/4] object-cover" data-ai-hint="resume minimalist" />
+                           <p className="text-center font-medium mt-2">Minimalist</p>
+                       </Label>
+                    </RadioGroup>
+                </div>
+
+                <Separator />
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="username">Username</Label>

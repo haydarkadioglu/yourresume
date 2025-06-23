@@ -11,6 +11,7 @@ export const mockResumeData: ResumeData = {
     github: "github.com/alexdoe",
     summary:
       "Innovative Senior Software Engineer with over 8 years of experience in developing scalable web applications. Proficient in React, Node.js, and cloud technologies. Passionate about creating clean, efficient code and leading high-performing teams to deliver exceptional products.",
+    template: "classic",
   },
   skills: [
     "JavaScript (ES6+)",

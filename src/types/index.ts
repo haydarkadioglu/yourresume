@@ -9,6 +9,7 @@ export interface ResumeData {
     github: string;
     summary: string;
     username?: string;
+    template: 'classic' | 'modern' | 'minimalist';
   };
   skills: string[];
   experience: Experience[];
