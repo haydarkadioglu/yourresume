@@ -119,7 +119,7 @@ export function TemplateMinimalist({ data }: { data: ResumeData }) {
       </header>
 
       <main className="space-y-10 print:space-y-6 print:text-sm">
-        {visibleSections.map(({ component }) => component)}
+        {visibleSections.map(({ key, component }) => <React.Fragment key={key}>{component}</React.Fragment>)}
       </main>
     </div>
   );

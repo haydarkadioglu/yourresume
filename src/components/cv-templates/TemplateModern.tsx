@@ -122,7 +122,7 @@ export function TemplateModern({ data }: { data: ResumeData }) {
 
         {/* Right Column */}
         <main className="md:w-2/3 print:text-sm">
-           {visibleRightSections.map(({ component }) => component)}
+           {visibleRightSections.map(({ key, component }) => <React.Fragment key={key}>{component}</React.Fragment>)}
         </main>
       </div>
     </div>
