@@ -23,6 +23,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { TemplateClassic } from "@/components/cv-templates/TemplateClassic";
 import { TemplateModern } from "@/components/cv-templates/TemplateModern";
 import { TemplateMinimalist } from "@/components/cv-templates/TemplateMinimalist";
+import { cn } from "@/lib/utils";
 
 export default function DashboardPage() {
   const [data, setData] = useState<ResumeData | null>(null);
@@ -446,7 +447,15 @@ export default function DashboardPage() {
                     onValueChange={handleTemplateChange}
                     className="grid grid-cols-2 md:grid-cols-3 gap-4"
                 >
-                   <Label htmlFor="classic" className="border-2 border-transparent has-[:checked]:border-primary rounded-lg p-1 transition-all cursor-pointer">
+                   <Label
+                     htmlFor="classic"
+                     className={cn(
+                       "rounded-lg border-2 p-1 transition-all cursor-pointer",
+                       data.personalInfo.template === 'classic'
+                         ? "border-primary"
+                         : "border-transparent"
+                     )}
+                   >
                         <RadioGroupItem value="classic" id="classic" className="sr-only"/>
                         <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-background border pointer-events-none">
                             <div className="transform scale-[0.25] origin-top-left">
@@ -457,7 +466,15 @@ export default function DashboardPage() {
                         </div>
                         <p className="text-center font-medium mt-2">Klasik</p>
                    </Label>
-                   <Label htmlFor="modern" className="border-2 border-transparent has-[:checked]:border-primary rounded-lg p-1 transition-all cursor-pointer">
+                   <Label
+                     htmlFor="modern"
+                     className={cn(
+                       "rounded-lg border-2 p-1 transition-all cursor-pointer",
+                       data.personalInfo.template === 'modern'
+                         ? "border-primary"
+                         : "border-transparent"
+                     )}
+                   >
                         <RadioGroupItem value="modern" id="modern" className="sr-only"/>
                         <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-background border pointer-events-none">
                             <div className="transform scale-[0.25] origin-top-left">
@@ -468,7 +485,15 @@ export default function DashboardPage() {
                         </div>
                         <p className="text-center font-medium mt-2">Modern</p>
                    </Label>
-                   <Label htmlFor="minimalist" className="border-2 border-transparent has-[:checked]:border-primary rounded-lg p-1 transition-all cursor-pointer">
+                   <Label
+                     htmlFor="minimalist"
+                     className={cn(
+                       "rounded-lg border-2 p-1 transition-all cursor-pointer",
+                       data.personalInfo.template === 'minimalist'
+                         ? "border-primary"
+                         : "border-transparent"
+                     )}
+                   >
                         <RadioGroupItem value="minimalist" id="minimalist" className="sr-only"/>
                         <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-background border pointer-events-none">
                             <div className="transform scale-[0.25] origin-top-left">
