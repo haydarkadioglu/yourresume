@@ -4,6 +4,11 @@ import {
   getDoc,
   setDoc,
   writeBatch,
+  collection,
+  query,
+  where,
+  getDocs,
+  limit,
 } from "firebase/firestore";
 import type { ResumeData } from "@/types";
 
@@ -22,53 +27,57 @@ export async function getResumeDataByUsername(
 ): Promise<ResumeData | null> {
   if (!username) return null;
 
-  const usernameRef = doc(db, "usernames", username);
-  const usernameSnap = await getDoc(usernameRef);
+  try {
+    const resumesRef = collection(db, "resumes");
+    const q = query(
+      resumesRef,
+      where("personalInfo.username", "==", username),
+      limit(1)
+    );
+    const querySnapshot = await getDocs(q);
 
-  if (!usernameSnap.exists()) {
+    if (querySnapshot.empty) {
+      console.log("No matching documents.");
+      return null;
+    }
+
+    const resumeDoc = querySnapshot.docs[0];
+    return resumeDoc.data() as ResumeData;
+  } catch (error) {
+    console.error("Error fetching resume by username:", error);
+    // Firestore'un oluşturulması gereken bir dizin önermesi durumunda,
+    // hata mesajında genellikle bir URL bulunur. Bu URL'yi tarayıcınızda
+    // açarak dizini kolayca oluşturabilirsiniz.
     return null;
   }
-
-  const { uid } = usernameSnap.data();
-  const resumeRef = doc(db, "resumes", uid);
-  const resumeSnap = await getDoc(resumeRef);
-
-  return resumeSnap.exists() ? (resumeSnap.data() as ResumeData) : null;
 }
 
 export async function saveResumeData(
   uid: string,
   newData: ResumeData
 ): Promise<{ success: boolean; message: string }> {
-  const batch = writeBatch(db);
   const resumeDocRef = doc(db, "resumes", uid);
-
   const newUsername = newData.personalInfo.username?.trim();
 
-  const existingDataSnap = await getDoc(resumeDocRef);
-  const oldUsername = existingDataSnap.exists()
-    ? existingDataSnap.data().personalInfo.username
-    : null;
+  // Check if username is already taken by another user
+  if (newUsername) {
+    const resumesRef = collection(db, "resumes");
+    const q = query(
+      resumesRef,
+      where("personalInfo.username", "==", newUsername)
+    );
+    const querySnapshot = await getDocs(q);
 
-  if (newUsername && newUsername !== oldUsername) {
-    const newUsernameRef = doc(db, "usernames", newUsername);
-    const usernameSnap = await getDoc(newUsernameRef);
-    if (usernameSnap.exists() && usernameSnap.data().uid !== uid) {
-      return { success: false, message: "Username is already taken." };
+    for (const doc of querySnapshot.docs) {
+      if (doc.id !== uid) {
+        return { success: false, message: "Username is already taken." };
+      }
     }
-
-    if (oldUsername) {
-      const oldUsernameRef = doc(db, "usernames", oldUsername);
-      batch.delete(oldUsernameRef);
-    }
-
-    batch.set(newUsernameRef, { uid });
   }
 
-  batch.set(resumeDocRef, newData, { merge: true });
-
   try {
-    await batch.commit();
+    // Use setDoc with merge to create or update the document.
+    await setDoc(resumeDocRef, newData, { merge: true });
     return { success: true, message: "Data saved successfully." };
   } catch (e: any) {
     console.error("Error saving data:", e);
