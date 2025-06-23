@@ -3,6 +3,13 @@ import { getApp, getApps, initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
+// Throw a more helpful error if the key is missing from the environment
+if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+  throw new Error(
+    "Firebase API key is not defined. Please add NEXT_PUBLIC_FIREBASE_API_KEY to your environment variables."
+  );
+}
+
 // Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
