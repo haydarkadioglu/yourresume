@@ -13,7 +13,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { Trash2, PlusCircle, Loader2 } from "lucide-react";
 import Link from 'next/link';
-import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
@@ -21,6 +20,9 @@ import { signOut } from "firebase/auth";
 import { getResumeData, saveResumeData } from "@/lib/firestore";
 import { mockResumeData } from "@/lib/mock-data";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { TemplateClassic } from "@/components/cv-templates/TemplateClassic";
+import { TemplateModern } from "@/components/cv-templates/TemplateModern";
+import { TemplateMinimalist } from "@/components/cv-templates/TemplateMinimalist";
 
 export default function DashboardPage() {
   const [data, setData] = useState<ResumeData | null>(null);
@@ -445,18 +447,36 @@ export default function DashboardPage() {
                     className="grid grid-cols-2 md:grid-cols-3 gap-4"
                 >
                    <Label htmlFor="classic" className="border-2 border-transparent has-[:checked]:border-primary rounded-lg p-1 transition-all cursor-pointer">
-                       <RadioGroupItem value="classic" id="classic" className="sr-only"/>
-                       <Image src="https://placehold.co/300x400.png" alt="Klasik Şablon Önizlemesi" width={300} height={400} className="rounded-md w-full aspect-[3/4] object-cover" data-ai-hint="resume classic" />
-                       <p className="text-center font-medium mt-2">Klasik</p>
+                        <RadioGroupItem value="classic" id="classic" className="sr-only"/>
+                        <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-background border pointer-events-none">
+                            <div className="transform scale-[0.25] origin-top-left">
+                                <div className="w-[1280px] h-[1810px]">
+                                    <TemplateClassic data={data} />
+                                </div>
+                            </div>
+                        </div>
+                        <p className="text-center font-medium mt-2">Klasik</p>
                    </Label>
                    <Label htmlFor="modern" className="border-2 border-transparent has-[:checked]:border-primary rounded-lg p-1 transition-all cursor-pointer">
-                       <RadioGroupItem value="modern" id="modern" className="sr-only"/>
-                       <Image src="https://placehold.co/300x400.png" alt="Modern Şablon Önizlemesi" width={300} height={400} className="rounded-md w-full aspect-[3/4] object-cover" data-ai-hint="resume modern" />
-                       <p className="text-center font-medium mt-2">Modern</p>
+                        <RadioGroupItem value="modern" id="modern" className="sr-only"/>
+                        <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-background border pointer-events-none">
+                            <div className="transform scale-[0.25] origin-top-left">
+                                <div className="w-[1280px] h-[1810px]">
+                                    <TemplateModern data={data} />
+                                </div>
+                            </div>
+                        </div>
+                        <p className="text-center font-medium mt-2">Modern</p>
                    </Label>
                    <Label htmlFor="minimalist" className="border-2 border-transparent has-[:checked]:border-primary rounded-lg p-1 transition-all cursor-pointer">
-                       <RadioGroupItem value="minimalist" id="minimalist" className="sr-only"/>
-                       <Image src="https://placehold.co/300x400.png" alt="Minimalist Şablon Önizlemesi" width={300} height={400} className="rounded-md w-full aspect-[3/4] object-cover" data-ai-hint="resume minimalist" />
+                        <RadioGroupItem value="minimalist" id="minimalist" className="sr-only"/>
+                        <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-background border pointer-events-none">
+                            <div className="transform scale-[0.25] origin-top-left">
+                                <div className="w-[1280px] h-[1810px]">
+                                    <TemplateMinimalist data={data} />
+                                </div>
+                            </div>
+                        </div>
                        <p className="text-center font-medium mt-2">Minimalist</p>
                    </Label>
                 </RadioGroup>
