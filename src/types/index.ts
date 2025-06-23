@@ -8,6 +8,7 @@ export interface ResumeData {
     linkedin: string;
     github: string;
     summary: string;
+    username?: string;
   };
   skills: string[];
   experience: Experience[];

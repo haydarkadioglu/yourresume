@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { mockResumeData } from "@/lib/mock-data";
 import type { ResumeData, Experience, Education, Project, Certification } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,25 +10,70 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, PlusCircle } from "lucide-react";
+import { Trash2, PlusCircle, Loader2 } from "lucide-react";
 import Link from 'next/link';
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
+import { getResumeData, saveResumeData } from "@/lib/firestore";
+import { mockResumeData } from "@/lib/mock-data";
+
+const initialResumeData: ResumeData = {
+  personalInfo: {
+    name: "",
+    title: "",
+    email: "",
+    phone: "",
+    website: "",
+    linkedin: "",
+    github: "",
+    summary: "",
+    username: "",
+  },
+  skills: [],
+  experience: [],
+  education: [],
+  projects: [],
+  certifications: [],
+};
+
+const TABS = ["personal", "skills", "experience", "education", "projects", "certifications"];
 
 export default function DashboardPage() {
-  const [data, setData] = useState<ResumeData>(mockResumeData);
+  const [data, setData] = useState<ResumeData | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState(TABS[0]);
   const { toast } = useToast();
-  const { user, loading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!authLoading && !user) {
       router.push('/login');
     }
-  }, [user, loading, router]);
+  }, [user, authLoading, router]);
 
+  useEffect(() => {
+    if (user) {
+      const fetchData = async () => {
+        const resumeData = await getResumeData(user.uid);
+        if (resumeData) {
+          setData(resumeData);
+        } else {
+          setData({
+              ...mockResumeData, // Start with mock data for new users
+              personalInfo: {
+                  ...mockResumeData.personalInfo,
+                  email: user.email || '',
+                  username: '',
+              }
+          })
+        }
+      };
+      fetchData();
+    }
+  }, [user]);
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -37,48 +81,86 @@ export default function DashboardPage() {
     router.push('/login');
   };
 
+  const handleSave = async (section: string) => {
+    if (!user || !data) return;
+    setIsSaving(true);
+    
+    const result = await saveResumeData(user.uid, data);
 
-  const handleSave = (section: string) => {
-    // In a real app, this would be a server action to save the data.
-    console.log(`Saving ${section}`, data);
-    toast({
-      title: `${section} Saved`,
-      description: `Your ${section.toLowerCase()} information has been updated.`,
-    });
+    if (result.success) {
+      toast({
+        title: `${section} Saved`,
+        description: `Your ${section.toLowerCase()} information has been updated.`,
+      });
+      const currentIndex = TABS.indexOf(activeTab);
+      if (currentIndex < TABS.length - 1) {
+        setActiveTab(TABS[currentIndex + 1]);
+      }
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Error saving",
+        description: result.message,
+      })
+    }
+    setIsSaving(false);
   };
 
   const handleAddItem = <T extends { id: string }>(
     field: keyof ResumeData,
     newItem: Omit<T, "id">
   ) => {
-    setData((prev) => ({
-      ...prev,
-      [field]: [...(prev[field] as T[]), { ...newItem, id: crypto.randomUUID() }],
-    }));
+    setData((prev) => {
+        if (!prev) return null;
+        return {
+           ...prev,
+           [field]: [...(prev[field] as T[]), { ...newItem, id: crypto.randomUUID() }],
+        }
+    });
   };
 
   const handleRemoveItem = (field: keyof ResumeData, id: string) => {
-    setData((prev) => ({
-      ...prev,
-      [field]: (prev[field] as any[]).filter((item) => item.id !== id),
-    }));
+    setData((prev) => {
+       if (!prev) return null;
+       return {
+        ...prev,
+        [field]: (prev[field] as any[]).filter((item) => item.id !== id),
+       }
+    });
   };
   
   const handlePersonalInfoChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setData(prev => ({
-        ...prev,
-        personalInfo: {
-            ...prev.personalInfo,
-            [name]: value,
+    setData(prev => {
+        if(!prev) return null;
+        return {
+            ...prev,
+            personalInfo: {
+                ...prev.personalInfo,
+                [name]: value,
+            }
         }
-    }))
+    })
+  }
+  
+  const handleItemChange = <T extends { id: string }>(
+    field: keyof ResumeData,
+    index: number,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+      const { name, value } = e.target;
+      setData(prev => {
+          if (!prev) return null;
+          const items = [...(prev[field] as T[])];
+          items[index] = { ...items[index], [name]: value };
+          return { ...prev, [field]: items };
+      })
   }
 
-  if (loading || !user) {
+  if (authLoading || !user || !data) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <div>Loading...</div>
+        <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
   }
@@ -89,8 +171,8 @@ export default function DashboardPage() {
         <div className="container mx-auto flex justify-between items-center">
           <h1 className="text-2xl font-bold font-headline text-primary">Dashboard</h1>
           <div className="flex gap-2">
-            <Button asChild variant="outline">
-              <Link href={`/cv/${user.uid}`} target="_blank">View My CV</Link>
+            <Button asChild variant="outline" disabled={!data.personalInfo.username}>
+              <Link href={`/cv/${data.personalInfo.username}`} target="_blank">View My CV</Link>
             </Button>
             <Button variant="ghost" onClick={handleLogout}>
               Logout
@@ -100,14 +182,9 @@ export default function DashboardPage() {
       </header>
 
       <main className="container mx-auto p-4 sm:p-8">
-        <Tabs defaultValue="personal" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 mb-6">
-            <TabsTrigger value="personal">Personal</TabsTrigger>
-            <TabsTrigger value="skills">Skills</TabsTrigger>
-            <TabsTrigger value="experience">Experience</TabsTrigger>
-            <TabsTrigger value="education">Education</TabsTrigger>
-            <TabsTrigger value="projects">Projects</TabsTrigger>
-            <TabsTrigger value="certifications">Certs</TabsTrigger>
+            {TABS.map(tab => <TabsTrigger key={tab} value={tab}>{tab.charAt(0).toUpperCase() + tab.slice(1)}</TabsTrigger>)}
           </TabsList>
 
           <TabsContent value="personal">
@@ -119,6 +196,11 @@ export default function DashboardPage() {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
+                    <Label htmlFor="username">Username</Label>
+                    <Input id="username" name="username" placeholder="your-unique-username" value={data.personalInfo.username} onChange={handlePersonalInfoChange} />
+                    <p className="text-sm text-muted-foreground">URL: /cv/{data.personalInfo.username || "..."}</p>
+                  </div>
+                  <div className="space-y-2">
                     <Label htmlFor="name">Full Name</Label>
                     <Input id="name" name="name" value={data.personalInfo.name} onChange={handlePersonalInfoChange} />
                   </div>
@@ -128,7 +210,7 @@ export default function DashboardPage() {
                   </div>
                    <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" name="email" type="email" value={data.personalInfo.email} onChange={handlePersonalInfoChange} />
+                    <Input id="email" name="email" type="email" value={data.personalInfo.email} onChange={handlePersonalInfoChange} disabled />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="phone">Phone</Label>
@@ -151,7 +233,9 @@ export default function DashboardPage() {
                   <Label htmlFor="summary">Summary</Label>
                   <Textarea id="summary" name="summary" value={data.personalInfo.summary} onChange={handlePersonalInfoChange} rows={5} />
                 </div>
-                <Button onClick={() => handleSave("Personal Info")} className="bg-accent hover:bg-accent/90">Save Personal Info</Button>
+                <Button onClick={() => handleSave("Personal Info")} disabled={isSaving} className="bg-accent hover:bg-accent/90">
+                  {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Saving...</> : 'Save & Next'}
+                </Button>
               </CardContent>
             </Card>
           </TabsContent>
@@ -166,10 +250,12 @@ export default function DashboardPage() {
                 <Textarea 
                   placeholder="JavaScript, React, Project Management, ..."
                   value={data.skills.join(', ')}
-                  onChange={(e) => setData(prev => ({ ...prev, skills: e.target.value.split(',').map(s => s.trim()) }))}
+                  onChange={(e) => setData(prev => prev ? ({ ...prev, skills: e.target.value.split(',').map(s => s.trim()) }) : null)}
                   rows={4}
                 />
-                <Button onClick={() => handleSave("Skills")} className="bg-accent hover:bg-accent/90">Save Skills</Button>
+                <Button onClick={() => handleSave("Skills")} disabled={isSaving} className="bg-accent hover:bg-accent/90">
+                    {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Saving...</> : 'Save & Next'}
+                </Button>
               </CardContent>
             </Card>
           </TabsContent>
@@ -182,95 +268,182 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent className="space-y-6">
                 {data.experience.map((exp, index) => (
-                  <div key={exp.id} className="p-4 border rounded-md relative">
-                    <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => handleRemoveItem('experience', exp.id)}>
+                  <div key={exp.id} className="p-4 border rounded-md relative space-y-4">
+                     <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => handleRemoveItem('experience', exp.id)}>
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* Form fields for each experience item */}
+                        <div className="space-y-2">
+                            <Label>Job Title</Label>
+                            <Input name="title" value={exp.title} onChange={(e) => handleItemChange('experience', index, e)} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Company</Label>
+                            <Input name="company" value={exp.company} onChange={(e) => handleItemChange('experience', index, e)} />
+                        </div>
+                         <div className="space-y-2">
+                            <Label>Location</Label>
+                            <Input name="location" value={exp.location} onChange={(e) => handleItemChange('experience', index, e)} />
+                        </div>
+                         <div className="space-y-2">
+                            <Label>Start Date - End Date</Label>
+                            <div className="flex gap-2">
+                                <Input name="startDate" value={exp.startDate} onChange={(e) => handleItemChange('experience', index, e)} />
+                                <Input name="endDate" value={exp.endDate} onChange={(e) => handleItemChange('experience', index, e)} />
+                            </div>
+                        </div>
                     </div>
-                    <p className="font-semibold mt-2">{exp.company} - {exp.title}</p>
+                    <div className="space-y-2">
+                        <Label>Description</Label>
+                        <Textarea name="description" value={exp.description} onChange={(e) => handleItemChange('experience', index, e)} />
+                    </div>
                   </div>
                 ))}
                  <Button variant="outline" onClick={() => handleAddItem<Experience>('experience', { title: '', company: '', location: '', startDate: '', endDate: '', description: '' })}>
                     <PlusCircle className="mr-2 h-4 w-4" /> Add Experience
                 </Button>
                 <Separator />
-                <Button onClick={() => handleSave("Experience")} className="bg-accent hover:bg-accent/90">Save Experience</Button>
+                <Button onClick={() => handleSave("Experience")} disabled={isSaving} className="bg-accent hover:bg-accent/90">
+                    {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Saving...</> : 'Save & Next'}
+                </Button>
               </CardContent>
             </Card>
           </TabsContent>
           
           <TabsContent value="education">
-            <Card>
-              <CardHeader>
-                <CardTitle className="font-headline">Education</CardTitle>
-                <CardDescription>List your academic background.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {data.education.map((edu) => (
-                   <div key={edu.id} className="p-4 border rounded-md relative">
-                    <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => handleRemoveItem('education', edu.id)}>
-                      <Trash2 className="h-4 w-4 text-destructive" />
+             {/* Similar editable fields for education */}
+             <Card>
+                <CardHeader>
+                    <CardTitle className="font-headline">Education</CardTitle>
+                    <CardDescription>List your academic background.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    {data.education.map((edu, index) => (
+                        <div key={edu.id} className="p-4 border rounded-md relative space-y-4">
+                             <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => handleRemoveItem('education', edu.id)}>
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                               <div className="space-y-2">
+                                    <Label>Degree</Label>
+                                    <Input name="degree" value={edu.degree} onChange={(e) => handleItemChange('education', index, e)} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Institution</Label>
+                                    <Input name="institution" value={edu.institution} onChange={(e) => handleItemChange('education', index, e)} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Location</Label>
+                                    <Input name="location" value={edu.location} onChange={(e) => handleItemChange('education', index, e)} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Start Date - End Date</Label>
+                                    <div className="flex gap-2">
+                                        <Input name="startDate" value={edu.startDate} onChange={(e) => handleItemChange('education', index, e)} />
+                                        <Input name="endDate" value={edu.endDate} onChange={(e) => handleItemChange('education', index, e)} />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                    <Button variant="outline" onClick={() => handleAddItem<Education>('education', { degree: '', institution: '', location: '', startDate: '', endDate: '' })}>
+                        <PlusCircle className="mr-2 h-4 w-4" /> Add Education
                     </Button>
-                     <p className="font-semibold mt-2">{edu.institution} - {edu.degree}</p>
-                   </div>
-                ))}
-                <Button variant="outline" onClick={() => handleAddItem<Education>('education', { degree: '', institution: '', location: '', startDate: '', endDate: '' })}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Add Education
-                </Button>
-                <Separator />
-                <Button onClick={() => handleSave("Education")} className="bg-accent hover:bg-accent/90">Save Education</Button>
-              </CardContent>
-            </Card>
+                    <Separator />
+                    <Button onClick={() => handleSave("Education")} disabled={isSaving} className="bg-accent hover:bg-accent/90">
+                        {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Saving...</> : 'Save & Next'}
+                    </Button>
+                </CardContent>
+             </Card>
           </TabsContent>
 
-          {/* Repeat for Projects and Certifications */}
            <TabsContent value="projects">
             <Card>
-              <CardHeader>
-                <CardTitle className="font-headline">Projects</CardTitle>
-                <CardDescription>Showcase your personal or professional projects.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {data.projects.map((proj) => (
-                   <div key={proj.id} className="p-4 border rounded-md relative">
-                    <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => handleRemoveItem('projects', proj.id)}>
-                      <Trash2 className="h-4 w-4 text-destructive" />
+                <CardHeader>
+                    <CardTitle className="font-headline">Projects</CardTitle>
+                    <CardDescription>Showcase your work.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    {data.projects.map((proj, index) => (
+                        <div key={proj.id} className="p-4 border rounded-md relative space-y-4">
+                             <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => handleRemoveItem('projects', proj.id)}>
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label>Project Name</Label>
+                                    <Input name="name" value={proj.name} onChange={(e) => handleItemChange('projects', index, e)} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>URL</Label>
+                                    <Input name="url" value={proj.url} onChange={(e) => handleItemChange('projects', index, e)} />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Description</Label>
+                                <Textarea name="description" value={proj.description} onChange={(e) => handleItemChange('projects', index, e)} />
+                            </div>
+                             <div className="space-y-2">
+                                <Label>Tags (comma-separated)</Label>
+                                <Input 
+                                    name="tags" 
+                                    value={proj.tags.join(', ')} 
+                                    onChange={(e) => {
+                                        const newTags = e.target.value.split(',').map(t => t.trim());
+                                        const event = { target: { name: 'tags', value: newTags } } as any;
+                                        handleItemChange('projects', index, event)
+                                    }} 
+                                />
+                            </div>
+                        </div>
+                    ))}
+                    <Button variant="outline" onClick={() => handleAddItem<Project>('projects', { name: '', description: '', url: '', tags: [] })}>
+                        <PlusCircle className="mr-2 h-4 w-4" /> Add Project
                     </Button>
-                     <p className="font-semibold mt-2">{proj.name}</p>
-                   </div>
-                ))}
-                <Button variant="outline" onClick={() => handleAddItem<Project>('projects', { name: '', description: '', url: '', tags: [] })}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Add Project
-                </Button>
-                <Separator />
-                <Button onClick={() => handleSave("Projects")} className="bg-accent hover:bg-accent/90">Save Projects</Button>
-              </CardContent>
+                    <Separator />
+                    <Button onClick={() => handleSave("Projects")} disabled={isSaving} className="bg-accent hover:bg-accent/90">
+                        {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Saving...</> : 'Save & Next'}
+                    </Button>
+                </CardContent>
             </Card>
           </TabsContent>
 
            <TabsContent value="certifications">
             <Card>
-              <CardHeader>
-                <CardTitle className="font-headline">Certifications</CardTitle>
-                <CardDescription>List any certifications you have earned.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {data.certifications.map((cert) => (
-                   <div key={cert.id} className="p-4 border rounded-md relative">
-                    <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => handleRemoveItem('certifications', cert.id)}>
-                      <Trash2 className="h-4 w-4 text-destructive" />
+                <CardHeader>
+                    <CardTitle className="font-headline">Certifications</CardTitle>
+                    <CardDescription>List any certs you have.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    {data.certifications.map((cert, index) => (
+                        <div key={cert.id} className="p-4 border rounded-md relative space-y-4">
+                             <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => handleRemoveItem('certifications', cert.id)}>
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label>Certification Name</Label>
+                                    <Input name="name" value={cert.name} onChange={(e) => handleItemChange('certifications', index, e)} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Issuer</Label>
+                                    <Input name="issuer" value={cert.issuer} onChange={(e) => handleItemChange('certifications', index, e)} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Date</Label>
+                                    <Input name="date" value={cert.date} onChange={(e) => handleItemChange('certifications', index, e)} />
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                    <Button variant="outline" onClick={() => handleAddItem<Certification>('certifications', { name: '', issuer: '', date: '' })}>
+                        <PlusCircle className="mr-2 h-4 w-4" /> Add Certification
                     </Button>
-                     <p className="font-semibold mt-2">{cert.name}</p>
-                   </div>
-                ))}
-                <Button variant="outline" onClick={() => handleAddItem<Certification>('certifications', { name: '', issuer: '', date: '' })}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Add Certification
-                </Button>
-                <Separator />
-                <Button onClick={() => handleSave("Certifications")} className="bg-accent hover:bg-accent/90">Save Certifications</Button>
-              </CardContent>
+                    <Separator />
+                    <Button onClick={() => handleSave("Certifications")} disabled={isSaving} className="bg-accent hover:bg-accent/90">
+                        {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Saving...</> : 'Finish'}
+                    </Button>
+                </CardContent>
             </Card>
           </TabsContent>
 

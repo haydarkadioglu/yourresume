@@ -1,13 +1,18 @@
-import { mockResumeData } from "@/lib/mock-data";
+import { getResumeDataByUsername } from "@/lib/firestore";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Mail, Phone, Link as LinkIcon, Linkedin, Github } from "lucide-react";
 import { PrintButton } from "@/components/PrintButton";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { notFound } from "next/navigation";
 
-export default function CVPage({ params }: { params: { username: string } }) {
-  const data = mockResumeData;
+export default async function CVPage({ params }: { params: { username: string } }) {
+  const data = await getResumeDataByUsername(params.username);
+
+  if (!data) {
+    notFound();
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-800 p-4 sm:p-8">
@@ -29,7 +34,7 @@ export default function CVPage({ params }: { params: { username: string } }) {
             <a href={`tel:${data.personalInfo.phone}`} className="flex items-center gap-2 hover:text-primary transition-colors"><Phone className="h-4 w-4" />{data.personalInfo.phone}</a>
             <a href={`https://${data.personalInfo.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors"><LinkIcon className="h-4 w-4" />{data.personalInfo.website}</a>
             <a href={`https://${data.personalInfo.linkedin}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors"><Linkedin className="h-4 w-4" />{data.personalInfo.linkedin}</a>
-            <a href={`https://${data.personalInfo.github}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors"><Github className="h-4 w-4" />{data.personalInfo.github}</a>
+            <a href={`https://{data.personalInfo.github}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors"><Github className="h-4 w-4" />{data.personalInfo.github}</a>
           </div>
         </header>
 
