@@ -22,12 +22,9 @@ import { getResumeData, saveResumeData } from "@/lib/firestore";
 import { mockResumeData } from "@/lib/mock-data";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
-const TABS = ["personal", "skills", "experience", "education", "projects", "certifications"];
-
 export default function DashboardPage() {
   const [data, setData] = useState<ResumeData | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState(TABS[0]);
   const { toast } = useToast();
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
@@ -43,14 +40,13 @@ export default function DashboardPage() {
       const fetchData = async () => {
         let resumeData = await getResumeData(user.uid);
         if (resumeData) {
-            // Ensure template exists, default if not
             if (!resumeData.personalInfo.template) {
                 resumeData.personalInfo.template = 'classic';
             }
           setData(resumeData);
         } else {
           setData({
-              ...mockResumeData, // Start with mock data for new users
+              ...mockResumeData,
               personalInfo: {
                   ...mockResumeData.personalInfo,
                   email: user.email || '',
@@ -78,17 +74,13 @@ export default function DashboardPage() {
 
     if (result.success) {
       toast({
-        title: `${section} Saved`,
-        description: `Your ${section.toLowerCase()} information has been updated.`,
+        title: `${section} Kaydedildi`,
+        description: `Bilgileriniz başarıyla güncellendi.`,
       });
-      const currentIndex = TABS.indexOf(activeTab);
-      if (currentIndex < TABS.length - 1) {
-        setActiveTab(TABS[currentIndex + 1]);
-      }
     } else {
       toast({
         variant: "destructive",
-        title: "Error saving",
+        title: "Kaydetme Hatası",
         description: result.message,
       })
     }
@@ -171,85 +163,57 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-black">
       <header className="bg-card border-b p-4">
         <div className="container mx-auto flex justify-between items-center">
-          <h1 className="text-2xl font-bold font-headline text-primary">Dashboard</h1>
+          <h1 className="text-2xl font-bold font-headline text-primary">Pano</h1>
           <div className="flex items-center gap-2">
             <ThemeToggle />
             <Button asChild variant="outline" disabled={!data.personalInfo.username}>
-              <Link href={`/cv/${data.personalInfo.username}`} target="_blank">View My CV</Link>
+              <Link href={`/cv/${data.personalInfo.username}`} target="_blank">CV'mi Görüntüle</Link>
             </Button>
             <Button variant="ghost" onClick={handleLogout}>
-              Logout
+              Çıkış Yap
             </Button>
           </div>
         </div>
       </header>
 
       <main className="container mx-auto p-4 sm:p-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 mb-6">
-            {TABS.map(tab => <TabsTrigger key={tab} value={tab}>{tab.charAt(0).toUpperCase() + tab.slice(1)}</TabsTrigger>)}
+        <Tabs defaultValue="content" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="content">İçerik</TabsTrigger>
+            <TabsTrigger value="appearance">Görünüm</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="personal">
+          <TabsContent value="content" className="space-y-8">
             <Card>
               <CardHeader>
-                <CardTitle className="font-headline">Personal Information</CardTitle>
-                <CardDescription>This information will appear at the top of your resume.</CardDescription>
+                <CardTitle className="font-headline">Kişisel Bilgiler</CardTitle>
+                <CardDescription>Bu bilgiler özgeçmişinizin en üstünde görünecektir.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                
-                {/* Template Selection */}
-                <div className="space-y-3">
-                    <Label>Template</Label>
-                    <RadioGroup
-                        value={data.personalInfo.template}
-                        onValueChange={handleTemplateChange}
-                        className="grid grid-cols-2 md:grid-cols-3 gap-4"
-                    >
-                       <Label htmlFor="classic" className="border-2 border-transparent has-[:checked]:border-primary rounded-lg p-1 transition-all">
-                           <RadioGroupItem value="classic" id="classic" className="sr-only"/>
-                           <Image src="https://placehold.co/300x400.png" alt="Classic Template" width={300} height={400} className="rounded-md w-full aspect-[3/4] object-cover" data-ai-hint="resume classic" />
-                           <p className="text-center font-medium mt-2">Classic</p>
-                       </Label>
-                       <Label htmlFor="modern" className="border-2 border-transparent has-[:checked]:border-primary rounded-lg p-1 transition-all">
-                           <RadioGroupItem value="modern" id="modern" className="sr-only"/>
-                           <Image src="https://placehold.co/300x400.png" alt="Modern Template" width={300} height={400} className="rounded-md w-full aspect-[3/4] object-cover" data-ai-hint="resume modern" />
-                           <p className="text-center font-medium mt-2">Modern</p>
-                       </Label>
-                       <Label htmlFor="minimalist" className="border-2 border-transparent has-[:checked]:border-primary rounded-lg p-1 transition-all">
-                           <RadioGroupItem value="minimalist" id="minimalist" className="sr-only"/>
-                           <Image src="https://placehold.co/300x400.png" alt="Minimalist Template" width={300} height={400} className="rounded-md w-full aspect-[3/4] object-cover" data-ai-hint="resume minimalist" />
-                           <p className="text-center font-medium mt-2">Minimalist</p>
-                       </Label>
-                    </RadioGroup>
-                </div>
-
-                <Separator />
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="username">Username</Label>
-                    <Input id="username" name="username" placeholder="your-unique-username" value={data.personalInfo.username} onChange={handlePersonalInfoChange} />
+                    <Label htmlFor="username">Kullanıcı Adı</Label>
+                    <Input id="username" name="username" placeholder="essiz-kullanici-adiniz" value={data.personalInfo.username} onChange={handlePersonalInfoChange} />
                     <p className="text-sm text-muted-foreground">URL: /cv/{data.personalInfo.username || "..."}</p>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="name">Full Name</Label>
+                    <Label htmlFor="name">Tam Adınız</Label>
                     <Input id="name" name="name" value={data.personalInfo.name} onChange={handlePersonalInfoChange} />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="title">Job Title</Label>
+                    <Label htmlFor="title">Unvan</Label>
                     <Input id="title" name="title" value={data.personalInfo.title} onChange={handlePersonalInfoChange} />
                   </div>
                    <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email">E-posta</Label>
                     <Input id="email" name="email" type="email" value={data.personalInfo.email} onChange={handlePersonalInfoChange} disabled />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="phone">Phone</Label>
+                    <Label htmlFor="phone">Telefon</Label>
                     <Input id="phone" name="phone" value={data.personalInfo.phone} onChange={handlePersonalInfoChange} />
                   </div>
                    <div className="space-y-2">
-                    <Label htmlFor="website">Website</Label>
+                    <Label htmlFor="website">Web Sitesi</Label>
                     <Input id="website" name="website" value={data.personalInfo.website} onChange={handlePersonalInfoChange} />
                   </div>
                    <div className="space-y-2">
@@ -262,41 +226,37 @@ export default function DashboardPage() {
                   </div>
                 </div>
                  <div className="space-y-2">
-                  <Label htmlFor="summary">Summary</Label>
+                  <Label htmlFor="summary">Özet</Label>
                   <Textarea id="summary" name="summary" value={data.personalInfo.summary} onChange={handlePersonalInfoChange} rows={5} />
                 </div>
-                <Button onClick={() => handleSave("Personal Info")} disabled={isSaving} className="bg-accent hover:bg-accent/90">
-                  {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Saving...</> : 'Save & Next'}
+                <Button onClick={() => handleSave("Kişisel Bilgiler")} disabled={isSaving} className="bg-accent hover:bg-accent/90">
+                  {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Kaydediliyor...</> : 'Bölümü Kaydet'}
                 </Button>
               </CardContent>
             </Card>
-          </TabsContent>
 
-          <TabsContent value="skills">
             <Card>
               <CardHeader>
-                <CardTitle className="font-headline">Skills</CardTitle>
-                <CardDescription>List your technical and professional skills. Enter skills separated by commas.</CardDescription>
+                <CardTitle className="font-headline">Yetenekler</CardTitle>
+                <CardDescription>Teknik ve profesyonel yeteneklerinizi virgülle ayırarak listeleyin.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <Textarea 
-                  placeholder="JavaScript, React, Project Management, ..."
+                  placeholder="JavaScript, React, Proje Yönetimi, ..."
                   value={data.skills.join(', ')}
                   onChange={(e) => setData(prev => prev ? ({ ...prev, skills: e.target.value.split(',').map(s => s.trim()) }) : null)}
                   rows={4}
                 />
-                <Button onClick={() => handleSave("Skills")} disabled={isSaving} className="bg-accent hover:bg-accent/90">
-                    {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Saving...</> : 'Save & Next'}
+                <Button onClick={() => handleSave("Yetenekler")} disabled={isSaving} className="bg-accent hover:bg-accent/90">
+                    {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Kaydediliyor...</> : 'Bölümü Kaydet'}
                 </Button>
               </CardContent>
             </Card>
-          </TabsContent>
 
-          <TabsContent value="experience">
             <Card>
               <CardHeader>
-                <CardTitle className="font-headline">Work Experience</CardTitle>
-                <CardDescription>Detail your professional history.</CardDescription>
+                <CardTitle className="font-headline">İş Deneyimi</CardTitle>
+                <CardDescription>Profesyonel geçmişinizi detaylandırın.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 {data.experience.map((exp, index) => (
@@ -306,19 +266,19 @@ export default function DashboardPage() {
                     </Button>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label>Job Title</Label>
+                            <Label>Unvan</Label>
                             <Input name="title" value={exp.title} onChange={(e) => handleItemChange('experience', index, e)} />
                         </div>
                         <div className="space-y-2">
-                            <Label>Company</Label>
+                            <Label>Şirket</Label>
                             <Input name="company" value={exp.company} onChange={(e) => handleItemChange('experience', index, e)} />
                         </div>
                          <div className="space-y-2">
-                            <Label>Location</Label>
+                            <Label>Konum</Label>
                             <Input name="location" value={exp.location} onChange={(e) => handleItemChange('experience', index, e)} />
                         </div>
                          <div className="space-y-2">
-                            <Label>Start Date - End Date</Label>
+                            <Label>Başlangıç - Bitiş Tarihi</Label>
                             <div className="flex gap-2">
                                 <Input name="startDate" value={exp.startDate} onChange={(e) => handleItemChange('experience', index, e)} />
                                 <Input name="endDate" value={exp.endDate} onChange={(e) => handleItemChange('experience', index, e)} />
@@ -326,28 +286,25 @@ export default function DashboardPage() {
                         </div>
                     </div>
                     <div className="space-y-2">
-                        <Label>Description</Label>
+                        <Label>Açıklama</Label>
                         <Textarea name="description" value={exp.description} onChange={(e) => handleItemChange('experience', index, e)} />
                     </div>
                   </div>
                 ))}
                  <Button variant="outline" onClick={() => handleAddItem<Experience>('experience', { title: '', company: '', location: '', startDate: '', endDate: '', description: '' })}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Add Experience
+                    <PlusCircle className="mr-2 h-4 w-4" /> Deneyim Ekle
                 </Button>
                 <Separator />
-                <Button onClick={() => handleSave("Experience")} disabled={isSaving} className="bg-accent hover:bg-accent/90">
-                    {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Saving...</> : 'Save & Next'}
+                <Button onClick={() => handleSave("İş Deneyimi")} disabled={isSaving} className="bg-accent hover:bg-accent/90">
+                    {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Kaydediliyor...</> : 'Bölümü Kaydet'}
                 </Button>
               </CardContent>
             </Card>
-          </TabsContent>
-          
-          <TabsContent value="education">
-             {/* Similar editable fields for education */}
-             <Card>
+
+            <Card>
                 <CardHeader>
-                    <CardTitle className="font-headline">Education</CardTitle>
-                    <CardDescription>List your academic background.</CardDescription>
+                    <CardTitle className="font-headline">Eğitim</CardTitle>
+                    <CardDescription>Akademik geçmişinizi listeleyin.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     {data.education.map((edu, index) => (
@@ -357,19 +314,19 @@ export default function DashboardPage() {
                             </Button>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                <div className="space-y-2">
-                                    <Label>Degree</Label>
+                                    <Label>Bölüm</Label>
                                     <Input name="degree" value={edu.degree} onChange={(e) => handleItemChange('education', index, e)} />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Institution</Label>
+                                    <Label>Kurum</Label>
                                     <Input name="institution" value={edu.institution} onChange={(e) => handleItemChange('education', index, e)} />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Location</Label>
+                                    <Label>Konum</Label>
                                     <Input name="location" value={edu.location} onChange={(e) => handleItemChange('education', index, e)} />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Start Date - End Date</Label>
+                                    <Label>Başlangıç - Bitiş Tarihi</Label>
                                     <div className="flex gap-2">
                                         <Input name="startDate" value={edu.startDate} onChange={(e) => handleItemChange('education', index, e)} />
                                         <Input name="endDate" value={edu.endDate} onChange={(e) => handleItemChange('education', index, e)} />
@@ -379,21 +336,19 @@ export default function DashboardPage() {
                         </div>
                     ))}
                     <Button variant="outline" onClick={() => handleAddItem<Education>('education', { degree: '', institution: '', location: '', startDate: '', endDate: '' })}>
-                        <PlusCircle className="mr-2 h-4 w-4" /> Add Education
+                        <PlusCircle className="mr-2 h-4 w-4" /> Eğitim Ekle
                     </Button>
                     <Separator />
-                    <Button onClick={() => handleSave("Education")} disabled={isSaving} className="bg-accent hover:bg-accent/90">
-                        {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Saving...</> : 'Save & Next'}
+                    <Button onClick={() => handleSave("Eğitim")} disabled={isSaving} className="bg-accent hover:bg-accent/90">
+                        {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Kaydediliyor...</> : 'Bölümü Kaydet'}
                     </Button>
                 </CardContent>
              </Card>
-          </TabsContent>
 
-           <TabsContent value="projects">
             <Card>
                 <CardHeader>
-                    <CardTitle className="font-headline">Projects</CardTitle>
-                    <CardDescription>Showcase your work.</CardDescription>
+                    <CardTitle className="font-headline">Projeler</CardTitle>
+                    <CardDescription>Çalışmalarınızı sergileyin.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     {data.projects.map((proj, index) => (
@@ -403,7 +358,7 @@ export default function DashboardPage() {
                             </Button>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label>Project Name</Label>
+                                    <Label>Proje Adı</Label>
                                     <Input name="name" value={proj.name} onChange={(e) => handleItemChange('projects', index, e)} />
                                 </div>
                                 <div className="space-y-2">
@@ -412,11 +367,11 @@ export default function DashboardPage() {
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <Label>Description</Label>
+                                <Label>Açıklama</Label>
                                 <Textarea name="description" value={proj.description} onChange={(e) => handleItemChange('projects', index, e)} />
                             </div>
                              <div className="space-y-2">
-                                <Label>Tags (comma-separated)</Label>
+                                <Label>Etiketler (virgülle ayırın)</Label>
                                 <Input 
                                     name="tags" 
                                     value={proj.tags.join(', ')} 
@@ -430,21 +385,19 @@ export default function DashboardPage() {
                         </div>
                     ))}
                     <Button variant="outline" onClick={() => handleAddItem<Project>('projects', { name: '', description: '', url: '', tags: [] })}>
-                        <PlusCircle className="mr-2 h-4 w-4" /> Add Project
+                        <PlusCircle className="mr-2 h-4 w-4" /> Proje Ekle
                     </Button>
                     <Separator />
-                    <Button onClick={() => handleSave("Projects")} disabled={isSaving} className="bg-accent hover:bg-accent/90">
-                        {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Saving...</> : 'Save & Next'}
+                    <Button onClick={() => handleSave("Projeler")} disabled={isSaving} className="bg-accent hover:bg-accent/90">
+                        {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Kaydediliyor...</> : 'Bölümü Kaydet'}
                     </Button>
                 </CardContent>
             </Card>
-          </TabsContent>
 
-           <TabsContent value="certifications">
             <Card>
                 <CardHeader>
-                    <CardTitle className="font-headline">Certifications</CardTitle>
-                    <CardDescription>List any certs you have.</CardDescription>
+                    <CardTitle className="font-headline">Sertifikalar</CardTitle>
+                    <CardDescription>Sahip olduğunuz sertifikaları listeleyin.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     {data.certifications.map((cert, index) => (
@@ -454,28 +407,63 @@ export default function DashboardPage() {
                             </Button>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label>Certification Name</Label>
+                                    <Label>Sertifika Adı</Label>
                                     <Input name="name" value={cert.name} onChange={(e) => handleItemChange('certifications', index, e)} />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Issuer</Label>
+                                    <Label>Veren Kurum</Label>
                                     <Input name="issuer" value={cert.issuer} onChange={(e) => handleItemChange('certifications', index, e)} />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Date</Label>
+                                    <Label>Tarih</Label>
                                     <Input name="date" value={cert.date} onChange={(e) => handleItemChange('certifications', index, e)} />
                                 </div>
                             </div>
                         </div>
                     ))}
                     <Button variant="outline" onClick={() => handleAddItem<Certification>('certifications', { name: '', issuer: '', date: '' })}>
-                        <PlusCircle className="mr-2 h-4 w-4" /> Add Certification
+                        <PlusCircle className="mr-2 h-4 w-4" /> Sertifika Ekle
                     </Button>
                     <Separator />
-                    <Button onClick={() => handleSave("Certifications")} disabled={isSaving} className="bg-accent hover:bg-accent/90">
-                        {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Saving...</> : 'Finish'}
+                    <Button onClick={() => handleSave("Sertifikalar")} disabled={isSaving} className="bg-accent hover:bg-accent/90">
+                        {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Kaydediliyor...</> : 'Bölümü Kaydet'}
                     </Button>
                 </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="appearance">
+            <Card>
+              <CardHeader>
+                <CardTitle className="font-headline">Şablon Seçimi</CardTitle>
+                <CardDescription>Özgeçmişiniz için bir şablon seçin.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <RadioGroup
+                    value={data.personalInfo.template}
+                    onValueChange={handleTemplateChange}
+                    className="grid grid-cols-2 md:grid-cols-3 gap-4"
+                >
+                   <Label htmlFor="classic" className="border-2 border-transparent has-[:checked]:border-primary rounded-lg p-1 transition-all cursor-pointer">
+                       <RadioGroupItem value="classic" id="classic" className="sr-only"/>
+                       <Image src="https://placehold.co/300x400.png" alt="Klasik Şablon Önizlemesi" width={300} height={400} className="rounded-md w-full aspect-[3/4] object-cover" data-ai-hint="resume classic" />
+                       <p className="text-center font-medium mt-2">Klasik</p>
+                   </Label>
+                   <Label htmlFor="modern" className="border-2 border-transparent has-[:checked]:border-primary rounded-lg p-1 transition-all cursor-pointer">
+                       <RadioGroupItem value="modern" id="modern" className="sr-only"/>
+                       <Image src="https://placehold.co/300x400.png" alt="Modern Şablon Önizlemesi" width={300} height={400} className="rounded-md w-full aspect-[3/4] object-cover" data-ai-hint="resume modern" />
+                       <p className="text-center font-medium mt-2">Modern</p>
+                   </Label>
+                   <Label htmlFor="minimalist" className="border-2 border-transparent has-[:checked]:border-primary rounded-lg p-1 transition-all cursor-pointer">
+                       <RadioGroupItem value="minimalist" id="minimalist" className="sr-only"/>
+                       <Image src="https://placehold.co/300x400.png" alt="Minimalist Şablon Önizlemesi" width={300} height={400} className="rounded-md w-full aspect-[3/4] object-cover" data-ai-hint="resume minimalist" />
+                       <p className="text-center font-medium mt-2">Minimalist</p>
+                   </Label>
+                </RadioGroup>
+                <Button onClick={() => handleSave("Görünüm")} disabled={isSaving} className="bg-accent hover:bg-accent/90">
+                  {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Kaydediliyor...</> : 'Görünümü Kaydet'}
+                </Button>
+              </CardContent>
             </Card>
           </TabsContent>
 
