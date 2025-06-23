@@ -554,9 +554,9 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-background">
       <header className="bg-card border-b p-4">
-        <div className="container mx-auto flex justify-between items-center">
+        <div className="container mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
           <h1 className="text-2xl font-bold font-headline text-primary">{t('dashboard')}</h1>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap justify-center sm:justify-end">
             <LanguageSwitcher />
             <ThemeToggle />
             <Button asChild variant="outline" disabled={!data.personalInfo.username}>
