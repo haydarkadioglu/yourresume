@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, PlusCircle, Loader2 } from "lucide-react";
+import { Trash2, PlusCircle, Loader2, ArrowUp, ArrowDown } from "lucide-react";
 import Link from 'next/link';
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
@@ -40,6 +40,8 @@ export default function DashboardPage() {
   const router = useRouter();
   const { t } = useLanguage();
 
+  const defaultSectionOrder = ['skills', 'experience', 'education', 'projects', 'certifications'];
+
   useEffect(() => {
     if (!authLoading && !user) {
       router.push('/login');
@@ -54,6 +56,9 @@ export default function DashboardPage() {
             if (!resumeData.personalInfo.template) {
                 resumeData.personalInfo.template = 'classic';
             }
+            if (!resumeData.sectionOrder) {
+                resumeData.sectionOrder = defaultSectionOrder;
+            }
           setData(resumeData);
         } else {
           setData({
@@ -63,7 +68,8 @@ export default function DashboardPage() {
                   email: user.email || '',
                   username: '',
                   template: 'classic',
-              }
+              },
+              sectionOrder: defaultSectionOrder,
           })
         }
       };
@@ -187,6 +193,27 @@ export default function DashboardPage() {
       })
   }
 
+  const handleMoveSection = (sectionKey: string, direction: 'up' | 'down') => {
+    setData(prev => {
+      if (!prev || !prev.sectionOrder) return prev;
+
+      const order = [...prev.sectionOrder];
+      const index = order.indexOf(sectionKey);
+
+      if (index === -1) return prev;
+
+      const newIndex = direction === 'up' ? index - 1 : index + 1;
+
+      if (newIndex < 0 || newIndex >= order.length) return prev;
+      
+      const temp = order[index];
+      order[index] = order[newIndex];
+      order[newIndex] = temp;
+
+      return { ...prev, sectionOrder: order };
+    });
+  };
+
   if (authLoading || !user || !data) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-background">
@@ -195,8 +222,337 @@ export default function DashboardPage() {
     );
   }
 
+  const sectionOrder = data.sectionOrder || defaultSectionOrder;
+
+  const sectionCards: Record<string, React.ReactNode> = {
+    personalInfo: (
+      <Card>
+        <CardHeader>
+          <CardTitle className="font-headline">{t('personalInfo')}</CardTitle>
+          <CardDescription>{t('personalInfoDesc')}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="username">{t('username')}</Label>
+              <Input id="username" name="username" placeholder="essiz-kullanici-adiniz" value={data.personalInfo.username} onChange={handlePersonalInfoChange} />
+              <p className="text-sm text-muted-foreground">{t('usernameDesc', {username: data.personalInfo.username || "..."})}</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="name">{t('fullName')}</Label>
+              <Input id="name" name="name" value={data.personalInfo.name} onChange={handlePersonalInfoChange} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="title">{t('title')}</Label>
+              <Input id="title" name="title" value={data.personalInfo.title} onChange={handlePersonalInfoChange} />
+            </div>
+             <div className="space-y-2">
+              <Label htmlFor="email">{t('email')}</Label>
+              <Input id="email" name="email" type="email" value={data.personalInfo.email} onChange={handlePersonalInfoChange} disabled />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone">{t('phone')}</Label>
+              <Input id="phone" name="phone" value={data.personalInfo.phone} onChange={handlePersonalInfoChange} />
+            </div>
+             <div className="space-y-2">
+              <Label htmlFor="website">{t('website')}</Label>
+              <Input id="website" name="website" value={data.personalInfo.website} onChange={handlePersonalInfoChange} />
+            </div>
+             <div className="space-y-2">
+              <Label htmlFor="linkedin">{t('linkedin')}</Label>
+              <Input id="linkedin" name="linkedin" value={data.personalInfo.linkedin} onChange={handlePersonalInfoChange} />
+            </div>
+             <div className="space-y-2">
+              <Label htmlFor="github">{t('github')}</Label>
+              <Input id="github" name="github" value={data.personalInfo.github} onChange={handlePersonalInfoChange} />
+            </div>
+          </div>
+           <div className="space-y-2">
+            <Label htmlFor="summary">{t('summary')}</Label>
+            <Textarea id="summary" name="summary" value={data.personalInfo.summary} onChange={handlePersonalInfoChange} rows={5} />
+          </div>
+          <Button onClick={() => handleSave(t('personalInfo'))} disabled={isSaving} className="bg-accent hover:bg-accent/90">
+            {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> {t('saving')}</> : t('saveSection')}
+          </Button>
+        </CardContent>
+      </Card>
+    ),
+    skills: (
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle className="font-headline">{t('skills')}</CardTitle>
+              <CardDescription>{t('skillsDesc')}</CardDescription>
+            </div>
+            {data.personalInfo.template !== 'modern' && (
+              <div className="flex gap-1">
+                <Button variant="ghost" size="icon" onClick={() => handleMoveSection('skills', 'up')} disabled={sectionOrder.indexOf('skills') === 0}>
+                  <ArrowUp className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={() => handleMoveSection('skills', 'down')} disabled={sectionOrder.indexOf('skills') === sectionOrder.length - 1}>
+                  <ArrowDown className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Textarea 
+            placeholder="JavaScript, React, Proje Yönetimi, ..."
+            value={data.skills.join(', ')}
+            onChange={(e) => setData(prev => prev ? ({ ...prev, skills: e.target.value.split(',').map(s => s.trim()) }) : null)}
+            rows={4}
+          />
+          <Button onClick={() => handleSave(t('skills'))} disabled={isSaving} className="bg-accent hover:bg-accent/90">
+              {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> {t('saving')}</> : t('saveSection')}
+          </Button>
+        </CardContent>
+      </Card>
+    ),
+    experience: (
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-center">
+              <div>
+                <CardTitle className="font-headline">{t('experience')}</CardTitle>
+                <CardDescription>{t('experienceDesc')}</CardDescription>
+              </div>
+              {data.personalInfo.template !== 'modern' && (
+                <div className="flex gap-1">
+                  <Button variant="ghost" size="icon" onClick={() => handleMoveSection('experience', 'up')} disabled={sectionOrder.indexOf('experience') === 0}>
+                    <ArrowUp className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={() => handleMoveSection('experience', 'down')} disabled={sectionOrder.indexOf('experience') === sectionOrder.length - 1}>
+                    <ArrowDown className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+            </div>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {data.experience.map((exp, index) => (
+            <div key={exp.id} className="p-4 border rounded-md relative space-y-4">
+               <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => handleRemoveItem('experience', exp.id)}>
+                <Trash2 className="h-4 w-4 text-destructive" />
+              </Button>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                      <Label>{t('title')}</Label>
+                      <Input name="title" value={exp.title} onChange={(e) => handleItemChange('experience', index, e)} />
+                  </div>
+                  <div className="space-y-2">
+                      <Label>{t('company')}</Label>
+                      <Input name="company" value={exp.company} onChange={(e) => handleItemChange('experience', index, e)} />
+                  </div>
+                   <div className="space-y-2">
+                      <Label>{t('location')}</Label>
+                      <Input name="location" value={exp.location} onChange={(e) => handleItemChange('experience', index, e)} />
+                  </div>
+                   <div className="space-y-2">
+                      <Label>{t('startDateEndDate')}</Label>
+                      <div className="flex gap-2">
+                          <Input name="startDate" value={exp.startDate} onChange={(e) => handleItemChange('experience', index, e)} />
+                          <Input name="endDate" value={exp.endDate} onChange={(e) => handleItemChange('experience', index, e)} />
+                      </div>
+                  </div>
+              </div>
+              <div className="space-y-2">
+                  <Label>{t('description')}</Label>
+                  <Textarea name="description" value={exp.description} onChange={(e) => handleItemChange('experience', index, e)} />
+              </div>
+            </div>
+          ))}
+           <Button variant="outline" onClick={() => handleAddItem<Experience>('experience', { title: '', company: '', location: '', startDate: '', endDate: '', description: '' })}>
+              <PlusCircle className="mr-2 h-4 w-4" /> {t('addExperience')}
+          </Button>
+          <Separator />
+          <Button onClick={() => handleSave(t('experience'))} disabled={isSaving} className="bg-accent hover:bg-accent/90">
+              {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> {t('saving')}</> : t('saveSection')}
+          </Button>
+        </CardContent>
+      </Card>
+    ),
+    education: (
+      <Card>
+        <CardHeader>
+           <div className="flex justify-between items-center">
+              <div>
+                <CardTitle className="font-headline">{t('education')}</CardTitle>
+                <CardDescription>{t('educationDesc')}</CardDescription>
+              </div>
+              {data.personalInfo.template !== 'modern' && (
+                <div className="flex gap-1">
+                  <Button variant="ghost" size="icon" onClick={() => handleMoveSection('education', 'up')} disabled={sectionOrder.indexOf('education') === 0}>
+                    <ArrowUp className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={() => handleMoveSection('education', 'down')} disabled={sectionOrder.indexOf('education') === sectionOrder.length - 1}>
+                    <ArrowDown className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+            </div>
+        </CardHeader>
+        <CardContent className="space-y-6">
+            {data.education.map((edu, index) => (
+                <div key={edu.id} className="p-4 border rounded-md relative space-y-4">
+                     <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => handleRemoveItem('education', edu.id)}>
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                       <div className="space-y-2">
+                            <Label>{t('degree')}</Label>
+                            <Input name="degree" value={edu.degree} onChange={(e) => handleItemChange('education', index, e)} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label>{t('institution')}</Label>
+                            <Input name="institution" value={edu.institution} onChange={(e) => handleItemChange('education', index, e)} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label>{t('location')}</Label>
+                            <Input name="location" value={edu.location} onChange={(e) => handleItemChange('education', index, e)} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label>{t('startDateEndDate')}</Label>
+                            <div className="flex gap-2">
+                                <Input name="startDate" value={edu.startDate} onChange={(e) => handleItemChange('education', index, e)} />
+                                <Input name="endDate" value={edu.endDate} onChange={(e) => handleItemChange('education', index, e)} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ))}
+            <Button variant="outline" onClick={() => handleAddItem<Education>('education', { degree: '', institution: '', location: '', startDate: '', endDate: '' })}>
+                <PlusCircle className="mr-2 h-4 w-4" /> {t('addEducation')}
+            </Button>
+            <Separator />
+            <Button onClick={() => handleSave(t('education'))} disabled={isSaving} className="bg-accent hover:bg-accent/90">
+                {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> {t('saving')}</> : t('saveSection')}
+            </Button>
+        </CardContent>
+     </Card>
+    ),
+    projects: (
+      <Card>
+          <CardHeader>
+              <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle className="font-headline">{t('projects')}</CardTitle>
+                    <CardDescription>{t('projectsDesc')}</CardDescription>
+                  </div>
+                  {data.personalInfo.template !== 'modern' && (
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="icon" onClick={() => handleMoveSection('projects', 'up')} disabled={sectionOrder.indexOf('projects') === 0}>
+                        <ArrowUp className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => handleMoveSection('projects', 'down')} disabled={sectionOrder.indexOf('projects') === sectionOrder.length - 1}>
+                        <ArrowDown className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+              {data.projects.map((proj, index) => (
+                  <div key={proj.id} className="p-4 border rounded-md relative space-y-4">
+                       <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => handleRemoveItem('projects', proj.id)}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                              <Label>{t('projectName')}</Label>
+                              <Input name="name" value={proj.name} onChange={(e) => handleItemChange('projects', index, e)} />
+                          </div>
+                          <div className="space-y-2">
+                              <Label>{t('url')}</Label>
+                              <Input name="url" value={proj.url} onChange={(e) => handleItemChange('projects', index, e)} />
+                          </div>
+                      </div>
+                      <div className="space-y-2">
+                          <Label>{t('description')}</Label>
+                          <Textarea name="description" value={proj.description} onChange={(e) => handleItemChange('projects', index, e)} />
+                      </div>
+                       <div className="space-y-2">
+                          <Label>{t('tags')}</Label>
+                          <Input 
+                              name="tags" 
+                              value={proj.tags.join(', ')} 
+                              onChange={(e) => {
+                                  const newTags = e.target.value.split(',').map(t => t.trim());
+                                  const event = { target: { name: 'tags', value: newTags } } as any;
+                                  handleItemChange('projects', index, event)
+                              }} 
+                          />
+                      </div>
+                  </div>
+              ))}
+              <Button variant="outline" onClick={() => handleAddItem<Project>('projects', { name: '', description: '', url: '', tags: [] })}>
+                  <PlusCircle className="mr-2 h-4 w-4" /> {t('addProject')}
+              </Button>
+              <Separator />
+              <Button onClick={() => handleSave(t('projects'))} disabled={isSaving} className="bg-accent hover:bg-accent/90">
+                  {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> {t('saving')}</> : t('saveSection')}
+              </Button>
+          </CardContent>
+      </Card>
+    ),
+    certifications: (
+      <Card>
+        <CardHeader>
+           <div className="flex justify-between items-center">
+              <div>
+                <CardTitle className="font-headline">{t('certifications')}</CardTitle>
+                <CardDescription>{t('certificationsDesc')}</CardDescription>
+              </div>
+              {data.personalInfo.template !== 'modern' && (
+                <div className="flex gap-1">
+                  <Button variant="ghost" size="icon" onClick={() => handleMoveSection('certifications', 'up')} disabled={sectionOrder.indexOf('certifications') === 0}>
+                    <ArrowUp className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={() => handleMoveSection('certifications', 'down')} disabled={sectionOrder.indexOf('certifications') === sectionOrder.length - 1}>
+                    <ArrowDown className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+            </div>
+        </CardHeader>
+        <CardContent className="space-y-6">
+            {data.certifications.map((cert, index) => (
+                <div key={cert.id} className="p-4 border rounded-md relative space-y-4">
+                     <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => handleRemoveItem('certifications', cert.id)}>
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label>{t('certificationName')}</Label>
+                            <Input name="name" value={cert.name} onChange={(e) => handleItemChange('certifications', index, e)} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label>{t('issuer')}</Label>
+                            <Input name="issuer" value={cert.issuer} onChange={(e) => handleItemChange('certifications', index, e)} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label>{t('date')}</Label>
+                            <Input name="date" value={cert.date} onChange={(e) => handleItemChange('certifications', index, e)} />
+                        </div>
+                    </div>
+                </div>
+            ))}
+            <Button variant="outline" onClick={() => handleAddItem<Certification>('certifications', { name: '', issuer: '', date: '' })}>
+                <PlusCircle className="mr-2 h-4 w-4" /> {t('addCertification')}
+            </Button>
+            <Separator />
+            <Button onClick={() => handleSave(t('certifications'))} disabled={isSaving} className="bg-accent hover:bg-accent/90">
+                {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> {t('saving')}</> : t('saveSection')}
+            </Button>
+        </CardContent>
+    </Card>
+    )
+  }
+
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-black">
+    <div className="min-h-screen bg-background">
       <header className="bg-card border-b p-4">
         <div className="container mx-auto flex justify-between items-center">
           <h1 className="text-2xl font-bold font-headline text-primary">{t('dashboard')}</h1>
@@ -222,259 +578,22 @@ export default function DashboardPage() {
           </TabsList>
 
           <TabsContent value="content" className="space-y-8">
-            <Card>
-              <CardHeader>
-                <CardTitle className="font-headline">{t('personalInfo')}</CardTitle>
-                <CardDescription>{t('personalInfoDesc')}</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="username">{t('username')}</Label>
-                    <Input id="username" name="username" placeholder="essiz-kullanici-adiniz" value={data.personalInfo.username} onChange={handlePersonalInfoChange} />
-                    <p className="text-sm text-muted-foreground">{t('usernameDesc', {username: data.personalInfo.username || "..."})}</p>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="name">{t('fullName')}</Label>
-                    <Input id="name" name="name" value={data.personalInfo.name} onChange={handlePersonalInfoChange} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="title">{t('title')}</Label>
-                    <Input id="title" name="title" value={data.personalInfo.title} onChange={handlePersonalInfoChange} />
-                  </div>
-                   <div className="space-y-2">
-                    <Label htmlFor="email">{t('email')}</Label>
-                    <Input id="email" name="email" type="email" value={data.personalInfo.email} onChange={handlePersonalInfoChange} disabled />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">{t('phone')}</Label>
-                    <Input id="phone" name="phone" value={data.personalInfo.phone} onChange={handlePersonalInfoChange} />
-                  </div>
-                   <div className="space-y-2">
-                    <Label htmlFor="website">{t('website')}</Label>
-                    <Input id="website" name="website" value={data.personalInfo.website} onChange={handlePersonalInfoChange} />
-                  </div>
-                   <div className="space-y-2">
-                    <Label htmlFor="linkedin">{t('linkedin')}</Label>
-                    <Input id="linkedin" name="linkedin" value={data.personalInfo.linkedin} onChange={handlePersonalInfoChange} />
-                  </div>
-                   <div className="space-y-2">
-                    <Label htmlFor="github">{t('github')}</Label>
-                    <Input id="github" name="github" value={data.personalInfo.github} onChange={handlePersonalInfoChange} />
-                  </div>
-                </div>
-                 <div className="space-y-2">
-                  <Label htmlFor="summary">{t('summary')}</Label>
-                  <Textarea id="summary" name="summary" value={data.personalInfo.summary} onChange={handlePersonalInfoChange} rows={5} />
-                </div>
-                <Button onClick={() => handleSave(t('personalInfo'))} disabled={isSaving} className="bg-accent hover:bg-accent/90">
-                  {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> {t('saving')}</> : t('saveSection')}
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="font-headline">{t('skills')}</CardTitle>
-                <CardDescription>{t('skillsDesc')}</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Textarea 
-                  placeholder="JavaScript, React, Proje Yönetimi, ..."
-                  value={data.skills.join(', ')}
-                  onChange={(e) => setData(prev => prev ? ({ ...prev, skills: e.target.value.split(',').map(s => s.trim()) }) : null)}
-                  rows={4}
-                />
-                <Button onClick={() => handleSave(t('skills'))} disabled={isSaving} className="bg-accent hover:bg-accent/90">
-                    {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> {t('saving')}</> : t('saveSection')}
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="font-headline">{t('experience')}</CardTitle>
-                <CardDescription>{t('experienceDesc')}</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {data.experience.map((exp, index) => (
-                  <div key={exp.id} className="p-4 border rounded-md relative space-y-4">
-                     <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => handleRemoveItem('experience', exp.id)}>
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label>{t('title')}</Label>
-                            <Input name="title" value={exp.title} onChange={(e) => handleItemChange('experience', index, e)} />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>{t('company')}</Label>
-                            <Input name="company" value={exp.company} onChange={(e) => handleItemChange('experience', index, e)} />
-                        </div>
-                         <div className="space-y-2">
-                            <Label>{t('location')}</Label>
-                            <Input name="location" value={exp.location} onChange={(e) => handleItemChange('experience', index, e)} />
-                        </div>
-                         <div className="space-y-2">
-                            <Label>{t('startDateEndDate')}</Label>
-                            <div className="flex gap-2">
-                                <Input name="startDate" value={exp.startDate} onChange={(e) => handleItemChange('experience', index, e)} />
-                                <Input name="endDate" value={exp.endDate} onChange={(e) => handleItemChange('experience', index, e)} />
-                            </div>
-                        </div>
-                    </div>
-                    <div className="space-y-2">
-                        <Label>{t('description')}</Label>
-                        <Textarea name="description" value={exp.description} onChange={(e) => handleItemChange('experience', index, e)} />
-                    </div>
-                  </div>
-                ))}
-                 <Button variant="outline" onClick={() => handleAddItem<Experience>('experience', { title: '', company: '', location: '', startDate: '', endDate: '', description: '' })}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> {t('addExperience')}
-                </Button>
-                <Separator />
-                <Button onClick={() => handleSave(t('experience'))} disabled={isSaving} className="bg-accent hover:bg-accent/90">
-                    {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> {t('saving')}</> : t('saveSection')}
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle className="font-headline">{t('education')}</CardTitle>
-                    <CardDescription>{t('educationDesc')}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                    {data.education.map((edu, index) => (
-                        <div key={edu.id} className="p-4 border rounded-md relative space-y-4">
-                             <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => handleRemoveItem('education', edu.id)}>
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                               <div className="space-y-2">
-                                    <Label>{t('degree')}</Label>
-                                    <Input name="degree" value={edu.degree} onChange={(e) => handleItemChange('education', index, e)} />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>{t('institution')}</Label>
-                                    <Input name="institution" value={edu.institution} onChange={(e) => handleItemChange('education', index, e)} />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>{t('location')}</Label>
-                                    <Input name="location" value={edu.location} onChange={(e) => handleItemChange('education', index, e)} />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>{t('startDateEndDate')}</Label>
-                                    <div className="flex gap-2">
-                                        <Input name="startDate" value={edu.startDate} onChange={(e) => handleItemChange('education', index, e)} />
-                                        <Input name="endDate" value={edu.endDate} onChange={(e) => handleItemChange('education', index, e)} />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                    <Button variant="outline" onClick={() => handleAddItem<Education>('education', { degree: '', institution: '', location: '', startDate: '', endDate: '' })}>
-                        <PlusCircle className="mr-2 h-4 w-4" /> {t('addEducation')}
-                    </Button>
-                    <Separator />
-                    <Button onClick={() => handleSave(t('education'))} disabled={isSaving} className="bg-accent hover:bg-accent/90">
-                        {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> {t('saving')}</> : t('saveSection')}
-                    </Button>
-                </CardContent>
-             </Card>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle className="font-headline">{t('projects')}</CardTitle>
-                    <CardDescription>{t('projectsDesc')}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                    {data.projects.map((proj, index) => (
-                        <div key={proj.id} className="p-4 border rounded-md relative space-y-4">
-                             <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => handleRemoveItem('projects', proj.id)}>
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label>{t('projectName')}</Label>
-                                    <Input name="name" value={proj.name} onChange={(e) => handleItemChange('projects', index, e)} />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>{t('url')}</Label>
-                                    <Input name="url" value={proj.url} onChange={(e) => handleItemChange('projects', index, e)} />
-                                </div>
-                            </div>
-                            <div className="space-y-2">
-                                <Label>{t('description')}</Label>
-                                <Textarea name="description" value={proj.description} onChange={(e) => handleItemChange('projects', index, e)} />
-                            </div>
-                             <div className="space-y-2">
-                                <Label>{t('tags')}</Label>
-                                <Input 
-                                    name="tags" 
-                                    value={proj.tags.join(', ')} 
-                                    onChange={(e) => {
-                                        const newTags = e.target.value.split(',').map(t => t.trim());
-                                        const event = { target: { name: 'tags', value: newTags } } as any;
-                                        handleItemChange('projects', index, event)
-                                    }} 
-                                />
-                            </div>
-                        </div>
-                    ))}
-                    <Button variant="outline" onClick={() => handleAddItem<Project>('projects', { name: '', description: '', url: '', tags: [] })}>
-                        <PlusCircle className="mr-2 h-4 w-4" /> {t('addProject')}
-                    </Button>
-                    <Separator />
-                    <Button onClick={() => handleSave(t('projects'))} disabled={isSaving} className="bg-accent hover:bg-accent/90">
-                        {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> {t('saving')}</> : t('saveSection')}
-                    </Button>
-                </CardContent>
-            </Card>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle className="font-headline">{t('certifications')}</CardTitle>
-                    <CardDescription>{t('certificationsDesc')}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                    {data.certifications.map((cert, index) => (
-                        <div key={cert.id} className="p-4 border rounded-md relative space-y-4">
-                             <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => handleRemoveItem('certifications', cert.id)}>
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label>{t('certificationName')}</Label>
-                                    <Input name="name" value={cert.name} onChange={(e) => handleItemChange('certifications', index, e)} />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>{t('issuer')}</Label>
-                                    <Input name="issuer" value={cert.issuer} onChange={(e) => handleItemChange('certifications', index, e)} />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>{t('date')}</Label>
-                                    <Input name="date" value={cert.date} onChange={(e) => handleItemChange('certifications', index, e)} />
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                    <Button variant="outline" onClick={() => handleAddItem<Certification>('certifications', { name: '', issuer: '', date: '' })}>
-                        <PlusCircle className="mr-2 h-4 w-4" /> {t('addCertification')}
-                    </Button>
-                    <Separator />
-                    <Button onClick={() => handleSave(t('certifications'))} disabled={isSaving} className="bg-accent hover:bg-accent/90">
-                        {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> {t('saving')}</> : t('saveSection')}
-                    </Button>
-                </CardContent>
-            </Card>
+            {sectionCards.personalInfo}
+            {sectionOrder.map(key => (
+              <div key={key}>
+                {sectionCards[key]}
+              </div>
+            ))}
           </TabsContent>
 
           <TabsContent value="appearance">
             <Card>
               <CardHeader>
                 <CardTitle className="font-headline">{t('templateSelection')}</CardTitle>
-                <CardDescription>{t('templateSelectionDesc')}</CardDescription>
+                <CardDescription>
+                  {t('templateSelectionDesc')}
+                  {data.personalInfo.template === 'modern' && <p className="text-sm text-amber-600 dark:text-amber-500 mt-2">Modern şablonun 2 sütunlu yapısı nedeniyle bölüm sıralama bu şablonda devre dışıdır.</p>}
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <RadioGroup

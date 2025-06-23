@@ -88,4 +88,5 @@ export const mockResumeData: ResumeData = {
       date: "Mar 2021",
     },
   ],
+  sectionOrder: ['skills', 'experience', 'education', 'projects', 'certifications'],
 };

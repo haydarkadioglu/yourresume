@@ -16,6 +16,7 @@ export interface ResumeData {
   education: Education[];
   projects: Project[];
   certifications: Certification[];
+  sectionOrder?: string[];
 }
 
 export interface Experience {
