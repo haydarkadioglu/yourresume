@@ -10,11 +10,11 @@ export function TemplateClassic({ data }: { data: ResumeData }) {
         <h1 className="text-4xl sm:text-5xl font-bold font-headline text-primary">{data.personalInfo.name}</h1>
         <p className="text-xl text-muted-foreground mt-2">{data.personalInfo.title}</p>
         <div className="flex justify-center items-center flex-wrap gap-x-6 gap-y-2 mt-4 text-sm text-muted-foreground">
-          <a href={`mailto:${data.personalInfo.email}`} className="flex items-center gap-2 hover:text-primary transition-colors"><Mail className="h-4 w-4" />{data.personalInfo.email}</a>
-          <a href={`tel:${data.personalInfo.phone}`} className="flex items-center gap-2 hover:text-primary transition-colors"><Phone className="h-4 w-4" />{data.personalInfo.phone}</a>
-          <a href={`https://${data.personalInfo.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors"><LinkIcon className="h-4 w-4" />{data.personalInfo.website}</a>
-          <a href={`https://${data.personalInfo.linkedin}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors"><Linkedin className="h-4 w-4" />{data.personalInfo.linkedin}</a>
-          <a href={`https://${data.personalInfo.github}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors"><Github className="h-4 w-4" />{data.personalInfo.github}</a>
+          {data.personalInfo.email && <a href={`mailto:${data.personalInfo.email}`} className="flex items-center gap-2 hover:text-primary transition-colors"><Mail className="h-4 w-4" />{data.personalInfo.email}</a>}
+          {data.personalInfo.phone && <a href={`tel:${data.personalInfo.phone}`} className="flex items-center gap-2 hover:text-primary transition-colors"><Phone className="h-4 w-4" />{data.personalInfo.phone}</a>}
+          {data.personalInfo.website && <a href={`https://${data.personalInfo.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors"><LinkIcon className="h-4 w-4" />{data.personalInfo.website}</a>}
+          {data.personalInfo.linkedin && <a href={`https://${data.personalInfo.linkedin}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors"><Linkedin className="h-4 w-4" />{data.personalInfo.linkedin}</a>}
+          {data.personalInfo.github && <a href={`https://${data.personalInfo.github}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors"><Github className="h-4 w-4" />{data.personalInfo.github}</a>}
         </div>
       </header>
 
@@ -99,7 +99,7 @@ export function TemplateClassic({ data }: { data: ResumeData }) {
                   <div key={project.id}>
                     <div className="flex items-center gap-4">
                       <h3 className="text-lg font-semibold">{project.name}</h3>
-                      <a href={`https://${project.url}`} target="_blank" rel="noopener noreferrer" className="text-sm text-accent hover:underline flex items-center gap-1"><LinkIcon className="h-3 w-3" />View Project</a>
+                      {project.url && <a href={`https://${project.url}`} target="_blank" rel="noopener noreferrer" className="text-sm text-accent hover:underline flex items-center gap-1"><LinkIcon className="h-3 w-3" />View Project</a>}
                     </div>
                     <p className="mt-1 text-foreground/80">{project.description}</p>
                     <div className="flex flex-wrap gap-2 mt-2">

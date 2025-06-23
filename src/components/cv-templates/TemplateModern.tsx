@@ -17,11 +17,11 @@ export function TemplateModern({ data }: { data: ResumeData }) {
           <section id="contact">
              <h2 className="text-xl font-bold font-headline text-primary mb-3 border-b pb-2">Contact</h2>
              <div className="space-y-2 mt-3 text-sm text-muted-foreground">
-                <a href={`mailto:${data.personalInfo.email}`} className="flex items-center gap-3 hover:text-primary transition-colors"><Mail className="h-4 w-4" /><span>{data.personalInfo.email}</span></a>
-                <a href={`tel:${data.personalInfo.phone}`} className="flex items-center gap-3 hover:text-primary transition-colors"><Phone className="h-4 w-4" /><span>{data.personalInfo.phone}</span></a>
-                <a href={`https://${data.personalInfo.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-primary transition-colors"><LinkIcon className="h-4 w-4" /><span>{data.personalInfo.website}</span></a>
-                <a href={`https://${data.personalInfo.linkedin}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-primary transition-colors"><Linkedin className="h-4 w-4" /><span>{data.personalInfo.linkedin}</span></a>
-                <a href={`https://${data.personalInfo.github}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-primary transition-colors"><Github className="h-4 w-4" /><span>{data.personalInfo.github}</span></a>
+                {data.personalInfo.email && <a href={`mailto:${data.personalInfo.email}`} className="flex items-center gap-3 hover:text-primary transition-colors"><Mail className="h-4 w-4" /><span>{data.personalInfo.email}</span></a>}
+                {data.personalInfo.phone && <a href={`tel:${data.personalInfo.phone}`} className="flex items-center gap-3 hover:text-primary transition-colors"><Phone className="h-4 w-4" /><span>{data.personalInfo.phone}</span></a>}
+                {data.personalInfo.website && <a href={`https://${data.personalInfo.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-primary transition-colors"><LinkIcon className="h-4 w-4" /><span>{data.personalInfo.website}</span></a>}
+                {data.personalInfo.linkedin && <a href={`https://${data.personalInfo.linkedin}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-primary transition-colors"><Linkedin className="h-4 w-4" /><span>{data.personalInfo.linkedin}</span></a>}
+                {data.personalInfo.github && <a href={`https://${data.personalInfo.github}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-primary transition-colors"><Github className="h-4 w-4" /><span>{data.personalInfo.github}</span></a>}
              </div>
           </section>
 
@@ -87,7 +87,7 @@ export function TemplateModern({ data }: { data: ResumeData }) {
                   <div key={project.id}>
                     <div className="flex items-center gap-4">
                       <h3 className="text-lg font-semibold">{project.name}</h3>
-                      <a href={`https://${project.url}`} target="_blank" rel="noopener noreferrer" className="text-sm text-accent hover:underline flex items-center gap-1"><LinkIcon className="h-3 w-3" />View Project</a>
+                      {project.url && <a href={`https://${project.url}`} target="_blank" rel="noopener noreferrer" className="text-sm text-accent hover:underline flex items-center gap-1"><LinkIcon className="h-3 w-3" />View Project</a>}
                     </div>
                      <div className="flex flex-wrap gap-2 mt-1">
                       {project.tags.map(tag => <Badge key={tag} variant="outline" className="text-xs">{tag}</Badge>)}

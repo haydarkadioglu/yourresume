@@ -1,19 +1,29 @@
 import type { ResumeData } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Link as LinkIcon } from "lucide-react";
+import React from "react";
 
 export function TemplateMinimalist({ data }: { data: ResumeData }) {
+  const contactInfo = [
+    data.personalInfo.email && <span>{data.personalInfo.email}</span>,
+    data.personalInfo.phone && <span>{data.personalInfo.phone}</span>,
+    data.personalInfo.website && <a href={`https://${data.personalInfo.website}`} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">{data.personalInfo.website}</a>,
+    data.personalInfo.linkedin && <a href={`https://${data.personalInfo.linkedin}`} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">{data.personalInfo.linkedin}</a>,
+    data.personalInfo.github && <a href={`https://${data.personalInfo.github}`} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">{data.personalInfo.github}</a>
+  ].filter(Boolean);
+
   return (
     <div id="cv-container" className="printable-area max-w-4xl mx-auto bg-card p-8 sm:p-16 shadow-lg rounded-lg font-sans">
       <header className="text-center mb-12">
         <h1 className="text-5xl font-extrabold tracking-tight text-primary">{data.personalInfo.name}</h1>
         <p className="text-lg text-muted-foreground mt-2">{data.personalInfo.title}</p>
-        <div className="flex justify-center items-center flex-wrap gap-x-4 gap-y-1 mt-4 text-sm text-muted-foreground">
-          <span>{data.personalInfo.email}</span>
-          <span>&bull;</span>
-          <span>{data.personalInfo.phone}</span>
-          <span>&bull;</span>
-          <a href={`https://${data.personalInfo.website}`} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">{data.personalInfo.website}</a>
+        <div className="flex justify-center items-center flex-wrap gap-x-2 gap-y-1 mt-4 text-sm text-muted-foreground">
+          {contactInfo.map((item, index) => (
+            <React.Fragment key={index}>
+              {item}
+              {index < contactInfo.length - 1 && <span className="px-1">&bull;</span>}
+            </React.Fragment>
+          ))}
         </div>
       </header>
 
@@ -83,7 +93,7 @@ export function TemplateMinimalist({ data }: { data: ResumeData }) {
               {data.projects.map((project) => (
                 <div key={project.id}>
                     <h3 className="text-lg font-semibold">{project.name}</h3>
-                    <a href={`https://${project.url}`} target="_blank" rel="noopener noreferrer" className="text-sm text-accent hover:underline flex items-center gap-1 mb-2"><LinkIcon className="h-3 w-3" />{project.url}</a>
+                    {project.url && <a href={`https://${project.url}`} target="_blank" rel="noopener noreferrer" className="text-sm text-accent hover:underline flex items-center gap-1 mb-2"><LinkIcon className="h-3 w-3" />{project.url}</a>}
                   <p className="mt-1 text-foreground/80">{project.description}</p>
                    <div className="flex flex-wrap gap-2 mt-2">
                     {project.tags.map(tag => <Badge key={tag} variant="outline" className="rounded-sm">{tag}</Badge>)}
