@@ -14,7 +14,7 @@ export function TemplateClassic({ data }: { data: ResumeData }) {
           <a href={`tel:${data.personalInfo.phone}`} className="flex items-center gap-2 hover:text-primary transition-colors"><Phone className="h-4 w-4" />{data.personalInfo.phone}</a>
           <a href={`https://${data.personalInfo.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors"><LinkIcon className="h-4 w-4" />{data.personalInfo.website}</a>
           <a href={`https://${data.personalInfo.linkedin}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors"><Linkedin className="h-4 w-4" />{data.personalInfo.linkedin}</a>
-          <a href={`https://{data.personalInfo.github}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors"><Github className="h-4 w-4" />{data.personalInfo.github}</a>
+          <a href={`https://${data.personalInfo.github}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors"><Github className="h-4 w-4" />{data.personalInfo.github}</a>
         </div>
       </header>
 

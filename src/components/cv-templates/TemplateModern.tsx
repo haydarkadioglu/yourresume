@@ -21,7 +21,7 @@ export function TemplateModern({ data }: { data: ResumeData }) {
                 <a href={`tel:${data.personalInfo.phone}`} className="flex items-center gap-3 hover:text-primary transition-colors"><Phone className="h-4 w-4" /><span>{data.personalInfo.phone}</span></a>
                 <a href={`https://${data.personalInfo.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-primary transition-colors"><LinkIcon className="h-4 w-4" /><span>{data.personalInfo.website}</span></a>
                 <a href={`https://${data.personalInfo.linkedin}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-primary transition-colors"><Linkedin className="h-4 w-4" /><span>{data.personalInfo.linkedin}</span></a>
-                <a href={`https://{data.personalInfo.github}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-primary transition-colors"><Github className="h-4 w-4" /><span>{data.personalInfo.github}</span></a>
+                <a href={`https://${data.personalInfo.github}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-primary transition-colors"><Github className="h-4 w-4" /><span>{data.personalInfo.github}</span></a>
              </div>
           </section>
 
