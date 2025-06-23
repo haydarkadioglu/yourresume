@@ -13,11 +13,6 @@ export function Header() {
               Login
             </Link>
           </Button>
-          <Button asChild className="bg-accent hover:bg-accent/90">
-            <Link href="/login">
-              Sign Up
-            </Link>
-          </Button>
         </nav>
       </div>
     </header>

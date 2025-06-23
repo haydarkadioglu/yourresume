@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
+import { AuthProvider } from "@/context/AuthContext";
 
 export const metadata: Metadata = {
   title: "OnlineResume - Craft Your Professional Story",
@@ -24,8 +25,10 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased min-h-screen flex flex-col">
-        <div className="flex-grow">{children}</div>
-        <Toaster />
+        <AuthProvider>
+          <div className="flex-grow">{children}</div>
+          <Toaster />
+        </AuthProvider>
       </body>
     </html>
   );

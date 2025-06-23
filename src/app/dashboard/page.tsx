@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { mockResumeData } from "@/lib/mock-data";
 import type { ResumeData, Experience, Education, Project, Certification } from "@/types";
 import { Button } from "@/components/ui/button";
@@ -13,10 +13,30 @@ import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { Trash2, PlusCircle } from "lucide-react";
 import Link from 'next/link';
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { auth } from "@/lib/firebase";
+import { signOut } from "firebase/auth";
 
 export default function DashboardPage() {
   const [data, setData] = useState<ResumeData>(mockResumeData);
   const { toast } = useToast();
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [user, loading, router]);
+
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    toast({ title: "Logged out successfully" });
+    router.push('/login');
+  };
+
 
   const handleSave = (section: string) => {
     // In a real app, this would be a server action to save the data.
@@ -55,6 +75,14 @@ export default function DashboardPage() {
     }))
   }
 
+  if (loading || !user) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div>Loading...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-black">
       <header className="bg-card border-b p-4">
@@ -62,10 +90,10 @@ export default function DashboardPage() {
           <h1 className="text-2xl font-bold font-headline text-primary">Dashboard</h1>
           <div className="flex gap-2">
             <Button asChild variant="outline">
-              <Link href="/cv/me" target="_blank">View My CV</Link>
+              <Link href={`/cv/${user.uid}`} target="_blank">View My CV</Link>
             </Button>
-            <Button asChild variant="ghost" >
-              <Link href="/">Logout</Link>
+            <Button variant="ghost" onClick={handleLogout}>
+              Logout
             </Button>
           </div>
         </div>
