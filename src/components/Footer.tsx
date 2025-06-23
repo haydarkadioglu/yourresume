@@ -9,7 +9,7 @@ export function Footer() {
       <div className="container mx-auto px-4 lg:px-6 flex flex-col md:flex-row items-center justify-between">
         <Logo />
         <p className="text-sm text-muted-foreground mt-4 md:mt-0">
-          © {currentYear} OnlineResume. All rights reserved.
+          © {currentYear} YourResume. All rights reserved.
         </p>
         <div className="flex gap-4 mt-4 md:mt-0">
             <Link className="text-sm text-muted-foreground hover:text-primary" href="#">Privacy</Link>

@@ -6,7 +6,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { LanguageProvider } from "@/context/LanguageContext";
 
 export const metadata: Metadata = {
-  title: "OnlineResume - Craft Your Professional Story",
+  title: "YourResume - Craft Your Professional Story",
   description:
     "Build, manage, and share your professional resume with ease. Create an ATS-friendly CV and download it as a PDF.",
 };
