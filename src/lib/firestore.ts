@@ -9,8 +9,8 @@ import {
   where,
   getDocs,
   limit,
-  addDoc,
   serverTimestamp,
+  orderBy,
 } from "firebase/firestore";
 import type { ResumeData, LoginHistory } from "@/types";
 
@@ -93,12 +93,37 @@ export async function saveLoginHistory(
 ): Promise<{ success: boolean; message?: string }> {
   if (!uid) return { success: false, message: "User ID is missing." };
 
+  const historyCollectionRef = collection(db, "resumes", uid, "loginHistory");
+  const HISTORY_LIMIT = 25;
+
   try {
-    const historyCollectionRef = collection(db, "resumes", uid, "loginHistory");
-    await addDoc(historyCollectionRef, {
+    const batch = writeBatch(db);
+
+    // 1. Add the new login document with a timestamp-based ID.
+    const newDocId = new Date().toISOString();
+    const newDocRef = doc(historyCollectionRef, newDocId);
+    batch.set(newDocRef, {
       ...loginData,
       timestamp: serverTimestamp(),
     });
+
+    // 2. Query existing documents to enforce the limit.
+    const q = query(historyCollectionRef, orderBy("timestamp", "asc"));
+    const querySnapshot = await getDocs(q);
+    const historyDocs = querySnapshot.docs;
+
+    // 3. If the limit is exceeded, schedule the oldest documents for deletion.
+    if (historyDocs.length >= HISTORY_LIMIT) {
+      const docsToDeleteCount = historyDocs.length - HISTORY_LIMIT + 1;
+      const docsToDelete = historyDocs.slice(0, docsToDeleteCount);
+      docsToDelete.forEach((docToDelete) => {
+        batch.delete(docToDelete.ref);
+      });
+    }
+
+    // 4. Commit all atomic operations.
+    await batch.commit();
+
     return { success: true };
   } catch (e: any) {
     console.error("Error saving login history:", e);
