@@ -1,0 +1,28 @@
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Resumes Collection
+    match /resumes/{userId} {
+      // Anyone can read a resume if it has a username (for public CV pages).
+      // Authenticated users can read their own resume regardless.
+      allow read: if (request.auth != null && request.auth.uid == userId) || (resource.data.personalInfo.username != null && resource.data.personalInfo.username != "");
+
+      // Only the authenticated owner can create, update, or delete their resume.
+      allow write: if request.auth != null && request.auth.uid == userId;
+
+      // Login History Subcollection
+      match /loginHistory/{historyId} {
+        // Only the authenticated owner can create new login history entries.
+        allow create: if request.auth != null && request.auth.uid == userId;
+
+        // Only the authenticated owner can read their login history.
+        allow read: if request.auth != null && request.auth.uid == userId;
+
+        // No one can update or delete login history entries to maintain integrity.
+        allow update, delete: if false;
+      }
+    }
+  }
+}
