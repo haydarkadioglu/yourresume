@@ -57,4 +57,5 @@ export interface LoginHistory {
   timestamp: any; // Firestore Timestamp
   ipAddress: string;
   userAgent: string;
+  os: string;
 }

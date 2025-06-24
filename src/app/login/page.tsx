@@ -29,6 +29,15 @@ const formSchema = z.object({
   password: z.string().min(1, { message: "Password is required." }),
 });
 
+function getOS(userAgent: string): string {
+    if (/windows/i.test(userAgent)) return "Windows";
+    if (/iphone|ipad|ipod/i.test(userAgent)) return "iOS";
+    if (/mac/i.test(userAgent)) return "macOS";
+    if (/android/i.test(userAgent)) return "Android";
+    if (/linux/i.test(userAgent)) return "Linux";
+    return "Unknown";
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
@@ -55,17 +64,23 @@ export default function LoginPage() {
           const ipRes = await fetch("https://api.ipify.org?format=json");
           const ipData = await ipRes.json();
           const ipAddress = ipData.ip || "IP Not Found";
+          const userAgent = navigator.userAgent;
+          const os = getOS(userAgent);
           
           await saveLoginHistory(user.uid, {
             ipAddress: ipAddress,
-            userAgent: navigator.userAgent,
+            userAgent: userAgent,
+            os: os,
           });
 
         } catch (activityError) {
            // Log IP as N/A if the fetch fails, but still log the login
+           const userAgent = navigator.userAgent;
+           const os = getOS(userAgent);
            await saveLoginHistory(user.uid, {
             ipAddress: "N/A",
-            userAgent: navigator.userAgent,
+            userAgent: userAgent,
+            os: os,
           });
           console.error("Could not log user activity:", activityError);
           // Don't block login if activity logging fails
