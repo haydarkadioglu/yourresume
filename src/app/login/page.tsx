@@ -21,6 +21,7 @@ import Link from "next/link";
 import { auth } from "@/lib/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import React from "react";
+import { useLanguage } from "@/context/LanguageContext";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email." }),
@@ -31,6 +32,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
+  const { t } = useLanguage();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -45,15 +47,15 @@ export default function LoginPage() {
     try {
       await signInWithEmailAndPassword(auth, values.email, values.password);
       toast({
-        title: "Login Successful",
-        description: "Welcome back! Redirecting you to the dashboard.",
+        title: t('loginSuccess'),
+        description: t('loginSuccessDesc'),
       });
       router.push("/dashboard");
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Login Failed",
-        description: "Invalid credentials. Please try again.",
+        title: t('loginFailed'),
+        description: t('loginFailedDesc'),
       });
     } finally {
       setIsLoading(false);
@@ -67,8 +69,8 @@ export default function LoginPage() {
           <div className="mx-auto mb-4">
             <Logo />
           </div>
-          <CardTitle className="font-headline text-2xl">Welcome Back</CardTitle>
-          <CardDescription>Enter your credentials to access your account.</CardDescription>
+          <CardTitle className="font-headline text-2xl">{t('welcomeBack')}</CardTitle>
+          <CardDescription>{t('welcomeBackDesc')}</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -78,7 +80,7 @@ export default function LoginPage() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>{t('email')}</FormLabel>
                     <FormControl>
                       <Input placeholder="name@example.com" {...field} />
                     </FormControl>
@@ -91,7 +93,7 @@ export default function LoginPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel>{t('password')}</FormLabel>
                     <FormControl>
                       <Input type="password" placeholder="••••••••" {...field} />
                     </FormControl>
@@ -100,16 +102,16 @@ export default function LoginPage() {
                 )}
               />
               <Button type="submit" className="w-full bg-accent hover:bg-accent/80" disabled={isLoading}>
-                {isLoading ? "Logging in..." : "Log In"}
+                {isLoading ? t('loggingIn') : t('login')}
               </Button>
             </form>
           </Form>
         </CardContent>
         <div className="text-center p-6 pt-0 text-sm text-muted-foreground">
-          New user creation is disabled. Accounts are created manually.
+          {t('newUserDisabled')}
           <br />
           <Button variant="link" asChild className="p-0 h-auto mt-2">
-            <Link href="/">Back to Home</Link>
+            <Link href="/">{t('backToHome')}</Link>
           </Button>
         </div>
       </Card>
