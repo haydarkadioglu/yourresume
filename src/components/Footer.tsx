@@ -1,8 +1,12 @@
+"use client";
+
 import { Logo } from "./Logo";
 import Link from "next/link";
+import { useLanguage } from "@/context/LanguageContext";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
+  const { t } = useLanguage();
 
   return (
     <footer className="bg-gray-100 dark:bg-gray-900 py-8 no-print">
@@ -12,8 +16,8 @@ export function Footer() {
           © {currentYear} YourResume. All rights reserved.
         </p>
         <div className="flex gap-4 mt-4 md:mt-0">
-            <Link className="text-sm text-muted-foreground hover:text-primary" href="#">Privacy</Link>
-            <Link className="text-sm text-muted-foreground hover:text-primary" href="#">Terms</Link>
+            <Link className="text-sm text-muted-foreground hover:text-primary" href="#">{t('privacy')}</Link>
+            <Link className="text-sm text-muted-foreground hover:text-primary" href="#">{t('terms')}</Link>
         </div>
       </div>
     </footer>

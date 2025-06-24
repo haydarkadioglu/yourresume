@@ -1,26 +1,31 @@
+"use client";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Github, Mail, MapPin } from "lucide-react";
 import Link from "next/link";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function ContactPage() {
+  const { t } = useLanguage();
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow container mx-auto py-12 md:py-24 px-4 md:px-6">
         <div className="flex flex-col items-center text-center mb-12">
-            <h1 className="text-3xl font-bold font-headline tracking-tighter sm:text-4xl md:text-5xl">İletişime Geçin</h1>
-            <p className="mt-4 max-w-[700px] text-muted-foreground md:text-xl">Sorularınız, önerileriniz veya işbirliği teklifleriniz için bize ulaşmaktan çekinmeyin.</p>
+            <h1 className="text-3xl font-bold font-headline tracking-tighter sm:text-4xl md:text-5xl">{t('getInTouch')}</h1>
+            <p className="mt-4 max-w-[700px] text-muted-foreground md:text-xl">{t('getInTouchDesc')}</p>
         </div>
 
         <div className="flex flex-col items-center gap-12">
             {/* Contact Info Card */}
             <Card className="w-full max-w-md shadow-lg">
                 <CardHeader>
-                    <CardTitle className="font-headline text-2xl flex items-center justify-center gap-2"><MapPin className="h-6 w-6 text-primary" /> İletişim Bilgileri</CardTitle>
+                    <CardTitle className="font-headline text-2xl flex items-center justify-center gap-2"><MapPin className="h-6 w-6 text-primary" /> {t('contactInfoTitle')}</CardTitle>
                     <CardDescription>
-                        Türkiye
+                        Turkey
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4 text-left">

@@ -4,6 +4,9 @@ import { createContext, useContext, useState, ReactNode, useCallback } from "rea
 
 const translations = {
   en: {
+    home: "Home",
+    contact: "Contact",
+    login: "Log In",
     dashboard: "Dashboard",
     viewMyCV: "View My CV",
     logout: "Log Out",
@@ -67,8 +70,16 @@ const translations = {
     sectionSaved: "{section} Saved",
     sectionSavedDesc: "Your information has been successfully updated.",
     saveError: "Save Error",
+    getInTouch: "Get in Touch",
+    getInTouchDesc: "Feel free to reach out for any questions, suggestions, or collaboration proposals.",
+    contactInfoTitle: "Contact Information",
+    privacy: "Privacy",
+    terms: "Terms",
   },
   tr: {
+    home: "Anasayfa",
+    contact: "İletişim",
+    login: "Giriş Yap",
     dashboard: "Pano",
     viewMyCV: "CV'mi Görüntüle",
     logout: "Çıkış Yap",
@@ -132,11 +143,16 @@ const translations = {
     sectionSaved: "{section} Kaydedildi",
     sectionSavedDesc: "Bilgileriniz başarıyla güncellendi.",
     saveError: "Kaydetme Hatası",
+    getInTouch: "İletişime Geçin",
+    getInTouchDesc: "Sorularınız, önerileriniz veya işbirliği teklifleriniz için bize ulaşmaktan çekinmeyin.",
+    contactInfoTitle: "İletişim Bilgileri",
+    privacy: "Gizlilik",
+    terms: "Koşullar",
   },
 };
 
 type Language = keyof typeof translations;
-type TranslationKeys = keyof typeof translations['tr'];
+type TranslationKeys = keyof typeof translations['en'];
 
 interface LanguageContextType {
   language: Language;
@@ -147,7 +163,7 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  const [language, setLanguage] = useState<Language>("tr");
+  const [language, setLanguage] = useState<Language>("en");
 
   const t = useCallback((key: TranslationKeys, params?: { [key: string]: string }) => {
     let translation = translations[language][key] || translations['en'][key];
