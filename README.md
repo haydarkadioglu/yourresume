@@ -2,8 +2,6 @@
 
 YourResume is a modern, web-based application designed to help users effortlessly create, manage, and share professional resumes. With an intuitive interface and multiple templates, you can craft a polished, ATS-friendly CV in minutes.
 
-
-
 ## ✨ Key Features
 
 - **Intuitive Editor**: Easily fill in your personal information, work experience, education, skills, and more through a user-friendly dashboard.
