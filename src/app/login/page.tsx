@@ -22,6 +22,7 @@ import { auth } from "@/lib/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import React from "react";
 import { useLanguage } from "@/context/LanguageContext";
+import { saveLoginHistory } from "@/lib/firestore";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email." }),
@@ -45,7 +46,32 @@ export default function LoginPage() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, values.email, values.password);
+      const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
+      const user = userCredential.user;
+
+      // Log activity after successful login
+      if (user) {
+        try {
+          const ipRes = await fetch("https://api.ipify.org?format=json");
+          const ipData = await ipRes.json();
+          const ipAddress = ipData.ip || "IP Not Found";
+          
+          await saveLoginHistory(user.uid, {
+            ipAddress: ipAddress,
+            userAgent: navigator.userAgent,
+          });
+
+        } catch (activityError) {
+           // Log IP as N/A if the fetch fails, but still log the login
+           await saveLoginHistory(user.uid, {
+            ipAddress: "N/A",
+            userAgent: navigator.userAgent,
+          });
+          console.error("Could not log user activity:", activityError);
+          // Don't block login if activity logging fails
+        }
+      }
+
       toast({
         title: t('loginSuccess'),
         description: t('loginSuccessDesc'),

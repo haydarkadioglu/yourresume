@@ -52,3 +52,9 @@ export interface Certification {
   issuer: string;
   date: string;
 }
+
+export interface LoginHistory {
+  timestamp: any; // Firestore Timestamp
+  ipAddress: string;
+  userAgent: string;
+}

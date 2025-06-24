@@ -9,8 +9,10 @@ import {
   where,
   getDocs,
   limit,
+  addDoc,
+  serverTimestamp,
 } from "firebase/firestore";
-import type { ResumeData } from "@/types";
+import type { ResumeData, LoginHistory } from "@/types";
 
 export async function getResumeData(uid: string): Promise<ResumeData | null> {
   if (!uid) return null;
@@ -82,5 +84,24 @@ export async function saveResumeData(
   } catch (e: any) {
     console.error("Error saving data:", e);
     return { success: false, message: "Failed to save data." };
+  }
+}
+
+export async function saveLoginHistory(
+  uid: string,
+  loginData: Omit<LoginHistory, "timestamp">
+): Promise<{ success: boolean; message?: string }> {
+  if (!uid) return { success: false, message: "User ID is missing." };
+
+  try {
+    const historyCollectionRef = collection(db, "resumes", uid, "loginHistory");
+    await addDoc(historyCollectionRef, {
+      ...loginData,
+      timestamp: serverTimestamp(),
+    });
+    return { success: true };
+  } catch (e: any) {
+    console.error("Error saving login history:", e);
+    return { success: false, message: "Failed to save login history." };
   }
 }
