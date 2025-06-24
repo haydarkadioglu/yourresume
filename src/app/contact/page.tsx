@@ -14,7 +14,7 @@ export default function ContactPage() {
                 <div className="relative h-[450px] md:h-[550px]">
                     <iframe
                         className="absolute top-0 left-0 w-full h-full"
-                        src="https://maps.google.com/maps?q=Hacettepe%20Teknokent%20Ankara&t=&z=14&ie=UTF8&iwloc=&output=embed"
+                        src="https://maps.google.com/maps?q=Turkey&t=&z=6&ie=UTF8&iwloc=&output=embed"
                         style={{ border: 0 }}
                         allowFullScreen={true}
                         loading="lazy"
@@ -26,7 +26,7 @@ export default function ContactPage() {
                             <CardHeader>
                                 <CardTitle className="font-headline text-2xl flex items-center gap-2"><MapPin className="h-6 w-6 text-primary" /> İletişim</CardTitle>
                                 <CardDescription>
-                                    Hacettepe Teknokent, Ankara, Türkiye
+                                    Türkiye
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
