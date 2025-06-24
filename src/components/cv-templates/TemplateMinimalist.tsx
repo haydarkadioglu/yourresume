@@ -8,8 +8,8 @@ export function TemplateMinimalist({ data }: { data: ResumeData }) {
     data.personalInfo.email && <span>{data.personalInfo.email}</span>,
     data.personalInfo.phone && <span>{data.personalInfo.phone}</span>,
     data.personalInfo.website && <a href={`https://${data.personalInfo.website}`} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">{data.personalInfo.website}</a>,
-    data.personalInfo.linkedin && <a href={`https://${data.personalInfo.linkedin}`} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">{data.personalInfo.linkedin}</a>,
-    data.personalInfo.github && <a href={`https://${data.personalInfo.github}`} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">{data.personalInfo.github}</a>
+    data.personalInfo.linkedin && <a href={`https://linkedin.com/${data.personalInfo.linkedin}`} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">{data.personalInfo.linkedin}</a>,
+    data.personalInfo.github && <a href={`https://github.com/${data.personalInfo.github}`} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">{data.personalInfo.github}</a>
   ].filter(Boolean);
 
   const sectionComponents = {

@@ -88,8 +88,8 @@ export function TemplateModern({ data }: { data: ResumeData }) {
                 {data.personalInfo.email && <a href={`mailto:${data.personalInfo.email}`} className="flex items-center gap-3 hover:text-primary transition-colors"><Mail className="h-4 w-4" /><span>{data.personalInfo.email}</span></a>}
                 {data.personalInfo.phone && <a href={`tel:${data.personalInfo.phone}`} className="flex items-center gap-3 hover:text-primary transition-colors"><Phone className="h-4 w-4" /><span>{data.personalInfo.phone}</span></a>}
                 {data.personalInfo.website && <a href={`https://${data.personalInfo.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-primary transition-colors"><LinkIcon className="h-4 w-4" /><span>{data.personalInfo.website}</span></a>}
-                {data.personalInfo.linkedin && <a href={`https://${data.personalInfo.linkedin}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-primary transition-colors"><Linkedin className="h-4 w-4" /><span>{data.personalInfo.linkedin}</span></a>}
-                {data.personalInfo.github && <a href={`https://${data.personalInfo.github}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-primary transition-colors"><Github className="h-4 w-4" /><span>{data.personalInfo.github}</span></a>}
+                {data.personalInfo.linkedin && <a href={`https://linkedin.com/${data.personalInfo.linkedin}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-primary transition-colors"><Linkedin className="h-4 w-4" /><span>{data.personalInfo.linkedin}</span></a>}
+                {data.personalInfo.github && <a href={`https://github.com/${data.personalInfo.github}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-primary transition-colors"><Github className="h-4 w-4" /><span>{data.personalInfo.github}</span></a>}
              </div>
           </section>
 

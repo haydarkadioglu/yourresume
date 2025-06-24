@@ -154,13 +154,23 @@ export default function DashboardPage() {
   
   const handlePersonalInfoChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
+    
+    let finalValue = value;
+    if (name === 'website') {
+      finalValue = value.replace(/^(https?:\/\/)?(www\.)?/i, '').replace(/\/$/, '');
+    } else if (name === 'linkedin') {
+      finalValue = value.replace(/^(https?:\/\/)?(www\.)?linkedin\.com\//i, '').replace(/\/$/, '');
+    } else if (name === 'github') {
+      finalValue = value.replace(/^(https?:\/\/)?(www\.)?github\.com\//i, '').replace(/\/$/, '');
+    }
+    
     setData(prev => {
         if(!prev) return null;
         return {
             ...prev,
             personalInfo: {
                 ...prev.personalInfo,
-                [name]: value,
+                [name]: finalValue,
             }
         }
     })
@@ -256,15 +266,15 @@ export default function DashboardPage() {
             </div>
              <div className="space-y-2">
               <Label htmlFor="website">{t('website')}</Label>
-              <Input id="website" name="website" value={data.personalInfo.website} onChange={handlePersonalInfoChange} />
+              <Input id="website" name="website" placeholder="your-domain.com" value={data.personalInfo.website} onChange={handlePersonalInfoChange} />
             </div>
              <div className="space-y-2">
               <Label htmlFor="linkedin">{t('linkedin')}</Label>
-              <Input id="linkedin" name="linkedin" value={data.personalInfo.linkedin} onChange={handlePersonalInfoChange} />
+              <Input id="linkedin" name="linkedin" placeholder="in/your-username" value={data.personalInfo.linkedin} onChange={handlePersonalInfoChange} />
             </div>
              <div className="space-y-2">
               <Label htmlFor="github">{t('github')}</Label>
-              <Input id="github" name="github" value={data.personalInfo.github} onChange={handlePersonalInfoChange} />
+              <Input id="github" name="github" placeholder="your-username" value={data.personalInfo.github} onChange={handlePersonalInfoChange} />
             </div>
           </div>
            <div className="space-y-2">
