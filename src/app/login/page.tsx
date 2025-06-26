@@ -22,7 +22,8 @@ import { auth } from "@/lib/firebase";
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import React from "react";
 import { useLanguage } from "@/context/LanguageContext";
-import { saveLoginHistory } from "@/lib/firestore";
+import { saveLoginHistory, getResumeData, saveResumeData } from "@/lib/firestore";
+import { mockResumeData } from "@/lib/mock-data";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email." }),
@@ -60,6 +61,23 @@ export default function LoginPage() {
       const user = userCredential.user;
 
       if (user) {
+        // Check if user data already exists, if not, create it
+        const existingData = await getResumeData(user.uid);
+        if (!existingData) {
+          const initialData = {
+            ...mockResumeData,
+            personalInfo: {
+              ...mockResumeData.personalInfo,
+              name: user.displayName || "",
+              email: user.email || "",
+              template: 'classic',
+              username: ''
+            },
+            sectionOrder: ['skills', 'experience', 'education', 'projects', 'certifications'],
+          };
+          await saveResumeData(user.uid, initialData);
+        }
+
          try {
           const ipRes = await fetch("https://api.ipify.org?format=json");
           const ipData = await ipRes.json();

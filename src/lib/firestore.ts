@@ -72,7 +72,7 @@ export async function saveResumeData(
 
     for (const doc of querySnapshot.docs) {
       if (doc.id !== uid) {
-        return { success: false, message: "Username is already taken." };
+        return { success: false, message: "usernameTaken" };
       }
     }
   }

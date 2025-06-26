@@ -22,7 +22,9 @@ import { auth } from "@/lib/firebase";
 import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import React from "react";
 import { useLanguage } from "@/context/LanguageContext";
-import { saveLoginHistory } from "@/lib/firestore";
+import { saveLoginHistory, saveResumeData, getResumeData } from "@/lib/firestore";
+import { mockResumeData } from "@/lib/mock-data";
+
 
 // Helper function from login page
 function getOS(userAgent: string): string {
@@ -35,6 +37,7 @@ function getOS(userAgent: string): string {
 }
 
 const formSchema = z.object({
+  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   email: z.string().email({ message: "Please enter a valid email." }),
   password: z.string().min(6, { message: "Password must be at least 6 characters." }),
 });
@@ -48,6 +51,7 @@ export default function RegisterPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
     },
@@ -61,6 +65,23 @@ export default function RegisterPage() {
       const user = userCredential.user;
 
       if (user) {
+        // Check if user data already exists, if not, create it
+        const existingData = await getResumeData(user.uid);
+        if (!existingData) {
+          const initialData = {
+            ...mockResumeData,
+            personalInfo: {
+              ...mockResumeData.personalInfo,
+              name: user.displayName || "",
+              email: user.email || "",
+              template: 'classic',
+              username: ''
+            },
+            sectionOrder: ['skills', 'experience', 'education', 'projects', 'certifications'],
+          };
+          await saveResumeData(user.uid, initialData);
+        }
+
          try {
           const ipRes = await fetch("https://api.ipify.org?format=json");
           const ipData = await ipRes.json();
@@ -103,6 +124,20 @@ export default function RegisterPage() {
       const user = userCredential.user;
       
       if (user) {
+        // Create initial resume data
+        const initialData = {
+           ...mockResumeData,
+            personalInfo: {
+              ...mockResumeData.personalInfo,
+              name: values.name,
+              email: user.email || "",
+              template: 'classic',
+              username: '',
+            },
+            sectionOrder: ['skills', 'experience', 'education', 'projects', 'certifications'],
+        };
+        await saveResumeData(user.uid, initialData);
+
          try {
           const ipRes = await fetch("https://api.ipify.org?format=json");
           const ipData = await ipRes.json();
@@ -166,6 +201,19 @@ export default function RegisterPage() {
 
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('fullName')}</FormLabel>
+                      <FormControl>
+                        <Input placeholder="John Doe" {...field} disabled={isLoading} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="email"

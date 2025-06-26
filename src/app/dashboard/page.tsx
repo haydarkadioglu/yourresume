@@ -97,7 +97,7 @@ export default function DashboardPage() {
       toast({
         variant: "destructive",
         title: t('saveError'),
-        description: result.message,
+        description: t(result.message as any) || result.message,
       })
     }
     setIsSaving(false);
@@ -159,7 +159,7 @@ export default function DashboardPage() {
     if (name === 'website') {
       finalValue = value.replace(/^(https?:\/\/)?(www\.)?/i, '').replace(/\/$/, '');
     } else if (name === 'linkedin') {
-      finalValue = value.replace(/^(https?:\/\/)?(www\.)?linkedin\.com\//i, '').replace(/\/$/, '');
+      finalValue = value.replace(/^(https?:\/\/)?(www\.)?linkedin\.com\/(in\/)?/i, '').replace(/\/$/, '');
     } else if (name === 'github') {
       finalValue = value.replace(/^(https?:\/\/)?(www\.)?github\.com\//i, '').replace(/\/$/, '');
     }
@@ -270,7 +270,7 @@ export default function DashboardPage() {
             </div>
              <div className="space-y-2">
               <Label htmlFor="linkedin">{t('linkedin')}</Label>
-              <Input id="linkedin" name="linkedin" placeholder="in/your-username" value={data.personalInfo.linkedin} onChange={handlePersonalInfoChange} />
+              <Input id="linkedin" name="linkedin" placeholder="your-username" value={data.personalInfo.linkedin} onChange={handlePersonalInfoChange} />
             </div>
              <div className="space-y-2">
               <Label htmlFor="github">{t('github')}</Label>
