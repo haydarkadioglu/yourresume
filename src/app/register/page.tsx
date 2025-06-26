@@ -19,16 +19,12 @@ import { useToast } from "@/hooks/use-toast";
 import { Logo } from "@/components/Logo";
 import Link from "next/link";
 import { auth } from "@/lib/firebase";
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import React from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import { saveLoginHistory } from "@/lib/firestore";
 
-const formSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email." }),
-  password: z.string().min(1, { message: "Password is required." }),
-});
-
+// Helper function from login page
 function getOS(userAgent: string): string {
     if (/windows/i.test(userAgent)) return "Windows";
     if (/iphone|ipad|ipod/i.test(userAgent)) return "iOS";
@@ -38,7 +34,12 @@ function getOS(userAgent: string): string {
     return "Unknown";
 }
 
-export default function LoginPage() {
+const formSchema = z.object({
+  email: z.string().email({ message: "Please enter a valid email." }),
+  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
+});
+
+export default function RegisterPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
@@ -52,7 +53,7 @@ export default function LoginPage() {
     },
   });
 
-  const handleGoogleSignIn = async () => {
+  const handleGoogleSignUp = async () => {
     setIsLoading(true);
     const provider = new GoogleAuthProvider();
     try {
@@ -79,15 +80,15 @@ export default function LoginPage() {
       }
 
       toast({
-        title: t('loginSuccess'),
-        description: t('loginSuccessDesc'),
+        title: t('registrationSuccess'),
+        description: t('registrationSuccessDesc'),
       });
       router.push("/dashboard");
 
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: t('loginFailed'),
+        title: t('registrationFailed'),
         description: error.message,
       });
     } finally {
@@ -98,48 +99,38 @@ export default function LoginPage() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
+      const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
       const user = userCredential.user;
-
-      // Log activity after successful login
+      
       if (user) {
-        try {
+         try {
           const ipRes = await fetch("https://api.ipify.org?format=json");
           const ipData = await ipRes.json();
-          const ipAddress = ipData.ip || "IP Not Found";
-          const userAgent = navigator.userAgent;
-          const os = getOS(userAgent);
-          
           await saveLoginHistory(user.uid, {
-            ipAddress: ipAddress,
-            userAgent: userAgent,
-            os: os,
+            ipAddress: ipData.ip || "N/A",
+            userAgent: navigator.userAgent,
+            os: getOS(navigator.userAgent),
           });
-
         } catch (activityError) {
-           // Log IP as N/A if the fetch fails, but still log the login
-           const userAgent = navigator.userAgent;
-           const os = getOS(userAgent);
            await saveLoginHistory(user.uid, {
             ipAddress: "N/A",
-            userAgent: userAgent,
-            os: os,
+            userAgent: navigator.userAgent,
+            os: getOS(navigator.userAgent),
           });
           console.error("Could not log user activity:", activityError);
-          // Don't block login if activity logging fails
         }
       }
 
       toast({
-        title: t('loginSuccess'),
-        description: t('loginSuccessDesc'),
+        title: t('registrationSuccess'),
+        description: t('registrationSuccessDesc'),
       });
       router.push("/dashboard");
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: t('loginFailed'),
-        description: t('loginFailedDesc'),
+        title: t('registrationFailed'),
+        description: error.message,
       });
     } finally {
       setIsLoading(false);
@@ -153,15 +144,15 @@ export default function LoginPage() {
           <div className="mx-auto mb-4">
             <Logo />
           </div>
-          <CardTitle className="font-headline text-2xl">{t('welcomeBack')}</CardTitle>
-          <CardDescription>{t('welcomeBackDesc')}</CardDescription>
+          <CardTitle className="font-headline text-2xl">{t('registerTitle')}</CardTitle>
+          <CardDescription>{t('registerDesc')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-             <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={isLoading}>
-                {isLoading ? t('loggingIn') : t('signInWithGoogle')}
+            <Button variant="outline" className="w-full" onClick={handleGoogleSignUp} disabled={isLoading}>
+              {isLoading ? t('loggingIn') : t('signUpWithGoogle')}
             </Button>
-            
+
             <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                     <span className="w-full border-t" />
@@ -202,16 +193,16 @@ export default function LoginPage() {
                   )}
                 />
                 <Button type="submit" className="w-full bg-accent hover:bg-accent/80" disabled={isLoading}>
-                  {isLoading ? t('loggingIn') : t('login')}
+                  {isLoading ? t('loggingIn') : t('register')}
                 </Button>
               </form>
             </Form>
           </div>
         </CardContent>
         <div className="text-center p-6 pt-0 text-sm text-muted-foreground">
-          {t('dontHaveAccount')}
+          {t('haveAccount')}
           <Button variant="link" asChild className="p-0 h-auto ml-1">
-            <Link href="/register">{t('register')}</Link>
+            <Link href="/login">{t('login')}</Link>
           </Button>
         </div>
       </Card>
