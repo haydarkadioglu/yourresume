@@ -27,9 +27,14 @@ export function Header() {
            <ThemeToggle />
            {!loading &&
             (!user ? (
-                <Button asChild>
-                  <Link href="/login">{t('login')}</Link>
-                </Button>
+                <>
+                  <Button asChild variant="ghost">
+                    <Link href="/login">{t('login')}</Link>
+                  </Button>
+                  <Button asChild>
+                    <Link href="/register">{t('register')}</Link>
+                  </Button>
+                </>
               ) : (
                 <Button asChild variant="outline">
                   <Link href="/dashboard">{t('dashboard')}</Link>
