@@ -1,3 +1,4 @@
+
 import type { ResumeData } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -88,17 +89,56 @@ export function TemplateTwoColumn({ data }: { data: ResumeData }) {
       </section>
     ) : null,
   };
-
+  
   const layout = data.layout || { sidebar: ['skills', 'education', 'certifications'], main: ['experience', 'projects'] };
   
+  // Single Column View (if sidebar is empty)
+  if (!layout.sidebar || layout.sidebar.length === 0) {
+    const singleColumnOrder = data.sectionOrder?.filter(key => layout.main.includes(key)) || layout.main;
+    const visibleSections = singleColumnOrder
+      .map(key => ({ key, component: allSectionComponents[key as keyof typeof allSectionComponents] }))
+      .filter(section => section.component);
+      
+    return (
+      <div id="cv-container" className="printable-area max-w-4xl mx-auto bg-card p-8 sm:p-12 print:p-8 shadow-lg rounded-lg print:shadow-none print:rounded-none">
+        <header className="text-center border-b border-border pb-6 mb-6 print:pb-4 print:mb-4">
+          <h1 className="text-4xl sm:text-5xl print:text-4xl font-bold font-headline text-primary">{data.personalInfo.name}</h1>
+          <p className="text-xl print:text-lg text-muted-foreground mt-2">{data.personalInfo.title}</p>
+          <div className="flex justify-center items-center flex-wrap gap-x-6 gap-y-2 mt-4 print:mt-2 text-sm print:text-xs text-muted-foreground">
+            {data.personalInfo.email && <a href={`mailto:${data.personalInfo.email}`} className="flex items-center gap-2 hover:text-primary transition-colors"><Mail className="h-4 w-4 print:h-3 print:w-3" />{data.personalInfo.email}</a>}
+            {data.personalInfo.phone && <a href={`tel:${data.personalInfo.phone}`} className="flex items-center gap-2 hover:text-primary transition-colors"><Phone className="h-4 w-4 print:h-3 print:w-3" />{data.personalInfo.phone}</a>}
+            {data.personalInfo.website && <a href={`https://${data.personalInfo.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors"><LinkIcon className="h-4 w-4 print:h-3 print:w-3" />{data.personalInfo.website}</a>}
+            {data.personalInfo.linkedin && <a href={`https://linkedin.com/in/${data.personalInfo.linkedin}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors"><Linkedin className="h-4 w-4 print:h-3 print:w-3" />{data.personalInfo.linkedin}</a>}
+            {data.personalInfo.github && <a href={`https://github.com/${data.personalInfo.github}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors"><Github className="h-4 w-4 print:h-3 print:w-3" />{data.personalInfo.github}</a>}
+          </div>
+        </header>
+
+        <main className="print:text-sm">
+          {allSectionComponents.summary && (
+              <>
+                  {allSectionComponents.summary}
+                  <Separator className="my-8 print:my-6" />
+              </>
+          )}
+          {visibleSections.map(({ key, component }, index) => (
+              <React.Fragment key={key}>
+                  {component}
+                  {index < visibleSections.length - 1 && <Separator className="my-8 print:my-6" />}
+              </React.Fragment>
+          ))}
+        </main>
+      </div>
+    );
+  }
+
+  // Two Column View (default)
   const sidebarOrder = data.sectionOrder 
     ? data.sectionOrder.filter(key => layout.sidebar.includes(key))
     : layout.sidebar;
   
   const mainOrder = data.sectionOrder
-    ? data.sectionOrder.filter(key => layout.main.includes(key))
-    : layout.main;
-
+    ? data.sectionOrder.filter(key => layout.main.includes(key) && key !== 'summary') // Summary is handled separately
+    : layout.main.filter(key => key !== 'summary');
 
   const sidebarSections = sidebarOrder
     .map(key => ({ key, component: allSectionComponents[key as keyof typeof allSectionComponents] }))
@@ -126,7 +166,7 @@ export function TemplateTwoColumn({ data }: { data: ResumeData }) {
              </div>
           </section>
 
-          {sidebarSections.map(({ key, component }, index) => (
+          {sidebarSections.map(({ key, component }) => (
             <React.Fragment key={key}>
               {component}
             </React.Fragment>

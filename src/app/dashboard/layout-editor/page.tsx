@@ -15,13 +15,11 @@ import { useLanguage } from "@/context/LanguageContext";
 import { mockResumeData } from "@/lib/mock-data";
 
 const ALL_SECTIONS = ['skills', 'experience', 'education', 'projects', 'certifications'];
-const SIDEBAR_ELIGIBLE = ['skills', 'education', 'certifications'];
-const MAIN_ELIGIBLE = ['experience', 'projects'];
 
 export default function LayoutEditorPage() {
   const [data, setData] = useState<ResumeData | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [layout, setLayout] = useState<{ sidebar: string[], main: string[] }>({ sidebar: SIDEBAR_ELIGIBLE, main: MAIN_ELIGIBLE });
+  const [layout, setLayout] = useState<{ sidebar: string[], main: string[] }>({ sidebar: [], main: [] });
 
   const { toast } = useToast();
   const { user, loading: authLoading } = useAuth();
@@ -41,14 +39,20 @@ export default function LayoutEditorPage() {
         if (resumeData) {
           setData(resumeData);
           if (resumeData.layout) {
-            setLayout(resumeData.layout);
+            // Ensure all sections are accounted for, adding new ones to main by default
+            const existingSections = new Set([...resumeData.layout.sidebar, ...resumeData.layout.main]);
+            const newSections = ALL_SECTIONS.filter(s => !existingSections.has(s));
+            setLayout({
+                sidebar: resumeData.layout.sidebar,
+                main: [...resumeData.layout.main, ...newSections]
+            });
           } else {
-            setLayout({ sidebar: SIDEBAR_ELIGIBLE, main: MAIN_ELIGIBLE });
+             // Default layout for first-time users of this feature
+            setLayout({ sidebar: ['skills', 'education', 'certifications'], main: ['experience', 'projects'] });
           }
         } else {
-          // Should not happen if user is logged in, but as a fallback
           setData(mockResumeData);
-          setLayout({ sidebar: SIDEBAR_ELIGIBLE, main: MAIN_ELIGIBLE });
+          setLayout({ sidebar: ['skills', 'education', 'certifications'], main: ['experience', 'projects'] });
         }
       };
       fetchData();
@@ -59,7 +63,6 @@ export default function LayoutEditorPage() {
     setLayout(prev => {
       const newLayout = { ...prev };
       newLayout[from] = newLayout[from].filter(s => s !== section);
-      // Ensure no duplicates
       if (!newLayout[to].includes(section)) {
         newLayout[to] = [...newLayout[to], section];
       }
@@ -98,8 +101,6 @@ export default function LayoutEditorPage() {
     );
   }
   
-  const mainContentSections = ALL_SECTIONS.filter(s => !layout.sidebar.includes(s));
-
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <header className="bg-card border-b p-4">
@@ -131,16 +132,16 @@ export default function LayoutEditorPage() {
                     <div className="border p-4 rounded-lg bg-gray-50 dark:bg-gray-800/50">
                         <h3 className="font-semibold text-lg mb-4 text-center">{t('mainContent')}</h3>
                         <div className="space-y-3 min-h-[200px] p-2 bg-background rounded-md border border-dashed">
-                             {mainContentSections.map(section => (
+                             {layout.main.map(section => (
                                 <div key={section} className="flex items-center justify-between p-3 bg-muted rounded-md text-sm shadow-sm">
                                   <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => moveSection(section, 'main', 'sidebar')}>
                                     <ArrowLeft className="h-5 w-5" />
                                   </Button>
-                                  <span className="font-medium">{t(section as any)}</span>
+                                  <span className="font-medium capitalize">{t(section as any)}</span>
                                   <div className="w-8"></div>
                                 </div>
                              ))}
-                             {mainContentSections.length === 0 && (
+                             {layout.main.length === 0 && (
                                 <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
                                     <p>{t('mainContentEmpty')}</p>
                                 </div>
@@ -154,7 +155,7 @@ export default function LayoutEditorPage() {
                             {layout.sidebar.map(section => (
                                 <div key={section} className="flex items-center justify-between p-3 bg-muted rounded-md text-sm shadow-sm">
                                    <div className="w-8"></div>
-                                  <span className="font-medium">{t(section as any)}</span>
+                                  <span className="font-medium capitalize">{t(section as any)}</span>
                                   <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => moveSection(section, 'sidebar', 'main')}>
                                     <ArrowRight className="h-5 w-5" />
                                   </Button>
