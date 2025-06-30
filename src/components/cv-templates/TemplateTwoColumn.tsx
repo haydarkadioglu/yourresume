@@ -89,18 +89,22 @@ export function TemplateTwoColumn({ data }: { data: ResumeData }) {
     ) : null,
   };
 
-  const sidebarEligibleKeys = ['skills', 'education', 'certifications'];
-  const defaultOrder = ['skills', 'experience', 'education', 'projects', 'certifications'];
-  const order = data.sectionOrder || defaultOrder;
+  const layout = data.layout || { sidebar: ['skills', 'education', 'certifications'], main: ['experience', 'projects'] };
+  
+  const sidebarOrder = data.sectionOrder 
+    ? data.sectionOrder.filter(key => layout.sidebar.includes(key))
+    : layout.sidebar;
+  
+  const mainOrder = data.sectionOrder
+    ? data.sectionOrder.filter(key => layout.main.includes(key))
+    : layout.main;
 
-  const sidebarSections = order
-    .filter(key => sidebarEligibleKeys.includes(key))
+
+  const sidebarSections = sidebarOrder
     .map(key => ({ key, component: allSectionComponents[key as keyof typeof allSectionComponents] }))
     .filter(section => section.component);
     
-  const mainEligibleKeys = ['experience', 'projects'];
-  const mainSections = order
-    .filter(key => mainEligibleKeys.includes(key))
+  const mainSections = mainOrder
     .map(key => ({ key, component: allSectionComponents[key as keyof typeof allSectionComponents] }))
     .filter(section => section.component);
 

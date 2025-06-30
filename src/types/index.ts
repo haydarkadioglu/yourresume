@@ -17,6 +17,10 @@ export interface ResumeData {
   projects: Project[];
   certifications: Certification[];
   sectionOrder?: string[];
+  layout?: {
+    sidebar: string[];
+    main: string[];
+  };
 }
 
 export interface Experience {

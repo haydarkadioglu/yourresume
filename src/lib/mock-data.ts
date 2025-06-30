@@ -89,4 +89,8 @@ export const mockResumeData: ResumeData = {
     },
   ],
   sectionOrder: ['skills', 'experience', 'education', 'projects', 'certifications'],
+  layout: {
+    sidebar: ['skills', 'education', 'certifications'],
+    main: ['experience', 'projects'],
+  }
 };
