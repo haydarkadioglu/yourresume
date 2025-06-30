@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -11,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, PlusCircle, Loader2, ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from "lucide-react";
+import { Trash2, PlusCircle, Loader2, ArrowUp, ArrowDown, LayoutTemplate } from "lucide-react";
 import Link from 'next/link';
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
@@ -28,7 +29,6 @@ import { cn } from "@/lib/utils";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/context/LanguageContext";
 
-const ALL_SECTIONS = ['skills', 'experience', 'education', 'projects', 'certifications'];
 const SIDEBAR_ELIGIBLE = ['skills', 'education', 'certifications'];
 const MAIN_ELIGIBLE = ['experience', 'projects'];
 
@@ -237,17 +237,6 @@ export default function DashboardPage() {
       return { ...prev, sectionOrder: order };
     });
   };
-
-  const moveSectionToColumn = (section: string, from: 'sidebar' | 'main', to: 'sidebar' | 'main') => {
-    setData(prev => {
-      if (!prev || !prev.layout) return prev;
-      const newLayout = { ...prev.layout };
-      newLayout[from] = newLayout[from].filter(s => s !== section);
-      newLayout[to] = [...newLayout[to], section];
-      return { ...prev, layout: newLayout };
-    });
-  };
-
 
   if (authLoading || !user || !data) {
     return (
@@ -624,14 +613,14 @@ export default function DashboardPage() {
           <TabsContent value="appearance">
             <Card>
               <CardHeader>
-                <CardTitle className="font-headline">Görünüm Yöneticisi</CardTitle>
+                <CardTitle className="font-headline">{t('appearanceManager')}</CardTitle>
                 <CardDescription>
-                  CV'nizin düzenini ve şablonunu buradan yönetin.
+                  {t('appearanceManagerDesc')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div>
-                  <Label className="text-base font-medium">Temel Şablon</Label>
+                  <Label className="text-base font-medium">{t('baseTemplate')}</Label>
                    <RadioGroup
                       value={data.personalInfo.template}
                       onValueChange={handleTemplateChange}
@@ -698,43 +687,18 @@ export default function DashboardPage() {
                 
                 {data.personalInfo.template === 'two-column' && (
                   <div className="space-y-4 pt-4 border-t">
-                      <Label className="text-base font-medium">İki Sütunlu Düzen</Label>
-                      <p className="text-sm text-muted-foreground">Bölümleri kenar çubuğu ve ana içerik arasında düzenleyin.</p>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Sidebar Sections */}
-                        <div className="border p-4 rounded-lg">
-                           <h4 className="font-semibold mb-3">Kenar Çubuğu (Sidebar)</h4>
-                           <div className="space-y-2">
-                            {data.layout?.sidebar.map(section => (
-                                <div key={section} className="flex items-center justify-between p-2 bg-muted rounded-md text-sm">
-                                  <span>{t(section as any)}</span>
-                                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => moveSectionToColumn(section, 'sidebar', 'main')}>
-                                    <ArrowRight className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                            ))}
-                            {data.layout?.sidebar.length === 0 && <p className="text-xs text-muted-foreground">Kenar çubuğuna bölüm ekleyin.</p>}
-                           </div>
-                        </div>
-                        {/* Main Sections */}
-                         <div className="border p-4 rounded-lg">
-                           <h4 className="font-semibold mb-3">Ana İçerik</h4>
-                           <div className="space-y-2">
-                             {ALL_SECTIONS.filter(s => !data.layout?.sidebar.includes(s)).map(section => (
-                                <div key={section} className="flex items-center justify-between p-2 bg-muted rounded-md text-sm">
-                                   <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => moveSectionToColumn(section, 'main', 'sidebar')}>
-                                    <ArrowLeft className="h-4 w-4" />
-                                  </Button>
-                                  <span>{t(section as any)}</span>
-                                </div>
-                             ))}
-                           </div>
-                        </div>
-                      </div>
+                      <Label className="text-base font-medium">{t('twoColumnLayout')}</Label>
+                       <p className="text-sm text-muted-foreground">{t('twoColumnLayoutDesc')}</p>
+                      <Button asChild>
+                        <Link href="/dashboard/layout-editor">
+                            <LayoutTemplate className="mr-2 h-4 w-4" />
+                            {t('openLayoutEditor')}
+                        </Link>
+                      </Button>
                   </div>
                 )}
                 
-                 {data.personalInfo.template === 'modern' && <p className="text-sm text-amber-600 dark:text-amber-500 mt-2">Modern şablonun 2 sütunlu yapısı sabittir, bu nedenle bölüm yerleşimi bu şablonda özelleştirilemez.</p>}
+                 {data.personalInfo.template === 'modern' && <p className="text-sm text-amber-600 dark:text-amber-500 mt-2">{t('modernTemplateWarning')}</p>}
 
                 <Button onClick={() => handleSave(t('appearance'))} disabled={isSaving} className="bg-accent hover:bg-accent/90">
                   {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> {t('saving')}</> : t('saveAppearance')}
