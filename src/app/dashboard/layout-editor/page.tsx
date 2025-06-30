@@ -122,17 +122,19 @@ export default function LayoutEditorPage() {
       </header>
       <main className="container mx-auto p-4 sm:p-8">
         <Card className="shadow-lg">
-            <CardHeader>
-                <CardTitle>{t('customizeLayout')}</CardTitle>
-                <CardDescription>{t('customizeLayoutDesc')}</CardDescription>
+            <CardHeader className="text-center">
+                <CardTitle className="text-3xl font-bold font-headline">{t('layoutEditorTitleV2')}</CardTitle>
+                <CardDescription className="max-w-2xl mx-auto mt-2">{t('layoutEditorDescV3')}</CardDescription>
             </CardHeader>
             <CardContent>
-                <div className="text-sm text-muted-foreground bg-muted/50 p-4 rounded-md mb-8 border">
-                    <h4 className="font-bold text-foreground mb-2">{t('howItWorks')}</h4>
+                <div className="text-sm text-muted-foreground bg-muted/50 p-4 rounded-md mb-8 border max-w-3xl mx-auto">
+                    <h4 className="font-bold text-foreground mb-2">{t('whatYouCanDo')}</h4>
                     <ul className="list-disc list-inside space-y-1">
-                        <li><strong>{t('mainContent')}:</strong> {t('mainContentInfo')}</li>
-                        <li><strong>{t('sidebar')}:</strong> {t('sidebarInfo')}</li>
+                        <li>{t('chooseLayout')}</li>
+                        <li>{t('rearrangeSections')}</li>
+                        <li>{t('instantPreview')}</li>
                     </ul>
+                    <p className="mt-4 font-semibold">{t('likeCanva')}</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Main Content Column */}
@@ -176,13 +178,13 @@ export default function LayoutEditorPage() {
                         </div>
                     </div>
                 </div>
+                 <div className="mt-8 text-center">
+                    <p className="text-lg font-medium text-primary">
+                        {t('saveReminder')}
+                    </p>
+                </div>
             </CardContent>
         </Card>
-        <div className="mt-8 text-center">
-            <p className="text-sm text-muted-foreground">
-                <span className="font-bold">⚠️ {t('layoutEditorNote')}</span>
-            </p>
-        </div>
       </main>
     </div>
   );
