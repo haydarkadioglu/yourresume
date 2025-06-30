@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, PlusCircle, Loader2, ArrowUp, ArrowDown, LayoutTemplate } from "lucide-react";
+import { Trash2, PlusCircle, Loader2, LayoutTemplate } from "lucide-react";
 import Link from 'next/link';
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
@@ -28,10 +28,10 @@ import { TemplateTwoColumn } from "@/components/cv-templates/TemplateTwoColumn";
 import { cn } from "@/lib/utils";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/context/LanguageContext";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const SIDEBAR_ELIGIBLE = ['skills', 'education', 'certifications'];
 const MAIN_ELIGIBLE = ['experience', 'projects'];
+const DEFAULT_SECTION_ORDER = ['skills', 'experience', 'education', 'projects', 'certifications'];
 
 export default function DashboardPage() {
   const [data, setData] = useState<ResumeData | null>(null);
@@ -44,8 +44,6 @@ export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const { t } = useLanguage();
-
-  const defaultSectionOrder = ['skills', 'experience', 'education', 'projects', 'certifications'];
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -62,7 +60,7 @@ export default function DashboardPage() {
                 resumeData.personalInfo.template = 'classic';
             }
             if (!resumeData.sectionOrder) {
-                resumeData.sectionOrder = defaultSectionOrder;
+                resumeData.sectionOrder = DEFAULT_SECTION_ORDER;
             }
              if (!resumeData.layout) {
               resumeData.layout = {
@@ -80,7 +78,7 @@ export default function DashboardPage() {
                   username: '',
                   template: 'classic',
               },
-              sectionOrder: defaultSectionOrder,
+              sectionOrder: DEFAULT_SECTION_ORDER,
               layout: {
                 sidebar: SIDEBAR_ELIGIBLE,
                 main: MAIN_ELIGIBLE,
@@ -218,27 +216,6 @@ export default function DashboardPage() {
       })
   }
 
-  const handleMoveSection = (sectionKey: string, direction: 'up' | 'down') => {
-    setData(prev => {
-      if (!prev || !prev.sectionOrder) return prev;
-
-      const order = [...prev.sectionOrder];
-      const index = order.indexOf(sectionKey);
-
-      if (index === -1) return prev;
-
-      const newIndex = direction === 'up' ? index - 1 : index + 1;
-
-      if (newIndex < 0 || newIndex >= order.length) return prev;
-      
-      const temp = order[index];
-      order[index] = order[newIndex];
-      order[newIndex] = temp;
-
-      return { ...prev, sectionOrder: order };
-    });
-  };
-
   if (authLoading || !user || !data) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-background">
@@ -247,7 +224,7 @@ export default function DashboardPage() {
     );
   }
 
-  const sectionOrder = data.sectionOrder || defaultSectionOrder;
+  const sectionOrder = data.sectionOrder || DEFAULT_SECTION_ORDER;
 
   const sectionCards: Record<string, React.ReactNode> = {
     personalInfo: (
@@ -310,16 +287,6 @@ export default function DashboardPage() {
               <CardTitle className="font-headline">{t('skills')}</CardTitle>
               <CardDescription>{t('skillsDesc')}</CardDescription>
             </div>
-            {data.personalInfo.template !== 'modern' && (
-              <div className="flex gap-1">
-                <Button variant="ghost" size="icon" onClick={() => handleMoveSection('skills', 'up')} disabled={sectionOrder.indexOf('skills') === 0}>
-                  <ArrowUp className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="icon" onClick={() => handleMoveSection('skills', 'down')} disabled={sectionOrder.indexOf('skills') === sectionOrder.length - 1}>
-                  <ArrowDown className="h-4 w-4" />
-                </Button>
-              </div>
-            )}
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -343,16 +310,6 @@ export default function DashboardPage() {
                 <CardTitle className="font-headline">{t('experience')}</CardTitle>
                 <CardDescription>{t('experienceDesc')}</CardDescription>
               </div>
-              {data.personalInfo.template !== 'modern' && (
-                <div className="flex gap-1">
-                  <Button variant="ghost" size="icon" onClick={() => handleMoveSection('experience', 'up')} disabled={sectionOrder.indexOf('experience') === 0}>
-                    <ArrowUp className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleMoveSection('experience', 'down')} disabled={sectionOrder.indexOf('experience') === sectionOrder.length - 1}>
-                    <ArrowDown className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
             </div>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -406,16 +363,6 @@ export default function DashboardPage() {
                 <CardTitle className="font-headline">{t('education')}</CardTitle>
                 <CardDescription>{t('educationDesc')}</CardDescription>
               </div>
-              {data.personalInfo.template !== 'modern' && (
-                <div className="flex gap-1">
-                  <Button variant="ghost" size="icon" onClick={() => handleMoveSection('education', 'up')} disabled={sectionOrder.indexOf('education') === 0}>
-                    <ArrowUp className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleMoveSection('education', 'down')} disabled={sectionOrder.indexOf('education') === sectionOrder.length - 1}>
-                    <ArrowDown className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
             </div>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -465,16 +412,6 @@ export default function DashboardPage() {
                     <CardTitle className="font-headline">{t('projects')}</CardTitle>
                     <CardDescription>{t('projectsDesc')}</CardDescription>
                   </div>
-                  {data.personalInfo.template !== 'modern' && (
-                    <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" onClick={() => handleMoveSection('projects', 'up')} disabled={sectionOrder.indexOf('projects') === 0}>
-                        <ArrowUp className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleMoveSection('projects', 'down')} disabled={sectionOrder.indexOf('projects') === sectionOrder.length - 1}>
-                        <ArrowDown className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  )}
                 </div>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -529,16 +466,6 @@ export default function DashboardPage() {
                 <CardTitle className="font-headline">{t('certifications')}</CardTitle>
                 <CardDescription>{t('certificationsDesc')}</CardDescription>
               </div>
-              {data.personalInfo.template !== 'modern' && (
-                <div className="flex gap-1">
-                  <Button variant="ghost" size="icon" onClick={() => handleMoveSection('certifications', 'up')} disabled={sectionOrder.indexOf('certifications') === 0}>
-                    <ArrowUp className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleMoveSection('certifications', 'down')} disabled={sectionOrder.indexOf('certifications') === sectionOrder.length - 1}>
-                    <ArrowDown className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
             </div>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -612,7 +539,6 @@ export default function DashboardPage() {
           </TabsContent>
 
           <TabsContent value="appearance">
-             <TooltipProvider>
               <Card>
                 <CardHeader>
                   <CardTitle className="font-headline">{t('appearanceManager')}</CardTitle>
@@ -670,38 +596,32 @@ export default function DashboardPage() {
                             </div>
                           <p className="text-center font-medium mt-2">{t('minimalist')}</p>
                       </Label>
-                       <Tooltip>
-                        <TooltipTrigger asChild>
-                           <Label
-                              htmlFor="two-column"
-                              className={cn( "rounded-lg border-2 p-1 transition-all cursor-pointer", data.personalInfo.template === 'two-column' ? "border-primary" : "border-transparent" )}
-                            >
-                              <RadioGroupItem value="two-column" id="two-column" className="sr-only"/>
-                              <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-background border-2 border-dashed flex items-center justify-center" onClick={() => router.push('/dashboard/layout-editor')}>
-                                  <LayoutTemplate className="h-12 w-12 text-muted-foreground" />
-                              </div>
-                              <p className="text-center font-medium mt-2">{t('twoColumn')}</p>
-                           </Label>
-                         </TooltipTrigger>
-                         <TooltipContent>
-                           <p>{t('customizeLayout')}</p>
-                         </TooltipContent>
-                       </Tooltip>
+                       <Label
+                          htmlFor="two-column"
+                          className={cn( "rounded-lg border-2 p-1 transition-all cursor-pointer", data.personalInfo.template === 'two-column' ? "border-primary" : "border-transparent" )}
+                        >
+                          <RadioGroupItem value="two-column" id="two-column" className="sr-only"/>
+                          <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-background border pointer-events-none">
+                               <div className="transform scale-[0.25] origin-top-left">
+                                    <div className="w-[1280px] h-[1810px]">
+                                        <TemplateTwoColumn data={data} />
+                                    </div>
+                                </div>
+                          </div>
+                          <p className="text-center font-medium mt-2">{t('twoColumn')}</p>
+                       </Label>
                     </RadioGroup>
                   </div>
 
                   <Button onClick={() => router.push('/dashboard/layout-editor')} variant="outline" className="gap-2">
-                     <LayoutTemplate /> {t('layoutEditor')}
+                     <LayoutTemplate /> {t('customizeOrderAndLayout')}
                   </Button>
                   
-                  {data.personalInfo.template === 'modern' && <p className="text-sm text-amber-600 dark:text-amber-500 mt-2">{t('modernTemplateWarning')}</p>}
-
                   <Button onClick={() => handleSave(t('appearance'))} disabled={isSaving} className="bg-accent hover:bg-accent/90">
                     {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> {t('saving')}</> : t('saveAppearance')}
                   </Button>
                 </CardContent>
               </Card>
-            </TooltipProvider>
           </TabsContent>
           
           <TabsContent value="settings">
