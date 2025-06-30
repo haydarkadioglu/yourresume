@@ -1,3 +1,4 @@
+
 import type { ResumeData } from "@/types";
 
 export const mockResumeData: ResumeData = {
@@ -88,6 +89,7 @@ export const mockResumeData: ResumeData = {
       date: "Mar 2021",
     },
   ],
+  customSections: [],
   sectionOrder: ['skills', 'experience', 'education', 'projects', 'certifications'],
   layout: {
     sidebar: ['skills', 'education', 'certifications'],

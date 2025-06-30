@@ -1,15 +1,24 @@
-import type { ResumeData } from "@/types";
+
+import type { ResumeData, CustomSection } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Mail, Phone, Link as LinkIcon, Linkedin, Github } from "lucide-react";
 import React from "react";
+
+const CustomSectionComponent = ({ section }: { section: CustomSection }) => (
+    <section id={section.id} className="mb-8 print:mb-6">
+        <h2 className="text-2xl print:text-xl font-bold font-headline text-primary mb-4 border-b pb-2">{section.title}</h2>
+        <p className="text-foreground/80 mt-4 print:mt-2 whitespace-pre-wrap">{section.content}</p>
+    </section>
+);
+
 
 export function TemplateModern({ data }: { data: ResumeData }) {
   // NOTE: This template has a fixed two-column layout. 
   // The reordering logic from the dashboard will not apply to this specific template
   // to preserve its unique design.
 
-  const rightColumnSections = {
+  const rightColumnSections: Record<string, React.ReactNode> = {
     summary: data.personalInfo.summary ? (
       <section id="summary" className="mb-8 print:mb-6">
         <h2 className="text-2xl print:text-xl font-bold font-headline text-primary mb-3 border-b pb-2">Summary</h2>
@@ -27,7 +36,7 @@ export function TemplateModern({ data }: { data: ResumeData }) {
                  <span className="text-sm print:text-xs text-muted-foreground">{job.startDate} - {job.endDate}</span>
               </div>
                <h4 className="text-md print:text-sm text-muted-foreground">{job.company} - {job.location}</h4>
-              <p className="mt-2 print:mt-1 text-foreground/80">{job.description}</p>
+              <p className="mt-2 print:mt-1 text-foreground/80 whitespace-pre-wrap">{job.description}</p>
             </div>
           ))}
         </div>
@@ -46,7 +55,7 @@ export function TemplateModern({ data }: { data: ResumeData }) {
                <div className="flex flex-wrap gap-2 mt-1">
                 {project.tags.map(tag => <Badge key={tag} variant="outline" className="text-xs print:text-[10px]">{tag}</Badge>)}
                </div>
-              <p className="mt-2 print:mt-1 text-foreground/80">{project.description}</p>
+              <p className="mt-2 print:mt-1 text-foreground/80 whitespace-pre-wrap">{project.description}</p>
             </div>
           ))}
          </div>
@@ -64,11 +73,22 @@ export function TemplateModern({ data }: { data: ResumeData }) {
          </div>
       </section>
     ) : null,
+    ...(data.customSections || []).reduce((acc, section) => {
+        if (!section.title || !section.content) return acc;
+        acc[section.id] = <CustomSectionComponent section={section} />;
+        return acc;
+    }, {} as Record<string, React.ReactNode>),
   };
+  
+  const rightColumnKeys = ['summary', 'experience', 'projects', ...(data.customSections || []).map(cs => cs.id)];
+  const leftColumnKeys = ['education', 'skills', 'certifications'];
 
-  const order = ['summary', 'experience', 'projects', 'certifications'];
+  // Use the order from data.sectionOrder if available, otherwise use default
+  const order = data.sectionOrder || [...rightColumnKeys, ...leftColumnKeys];
+
   const visibleRightSections = order
-    .map(key => ({ key, component: rightColumnSections[key as keyof typeof rightColumnSections] }))
+    .filter(key => rightColumnKeys.includes(key))
+    .map(key => ({ key, component: rightColumnSections[key] }))
     .filter(section => section && section.component);
 
 

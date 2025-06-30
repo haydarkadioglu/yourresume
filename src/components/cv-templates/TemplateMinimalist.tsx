@@ -1,7 +1,16 @@
-import type { ResumeData } from "@/types";
+
+import type { ResumeData, CustomSection } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Link as LinkIcon } from "lucide-react";
 import React from "react";
+
+const CustomSectionComponent = ({ section }: { section: CustomSection }) => (
+    <section id={section.id}>
+        <h2 className="text-sm print:text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">{section.title}</h2>
+        <p className="text-foreground/80 whitespace-pre-wrap">{section.content}</p>
+    </section>
+);
+
 
 export function TemplateMinimalist({ data }: { data: ResumeData }) {
   const contactInfo = [
@@ -12,7 +21,7 @@ export function TemplateMinimalist({ data }: { data: ResumeData }) {
     data.personalInfo.github && <a href={`https://github.com/${data.personalInfo.github}`} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">{`github.com/${data.personalInfo.github}`}</a>
   ].filter(Boolean);
 
-  const sectionComponents = {
+  const sectionComponents: Record<string, React.ReactNode> = {
     summary: data.personalInfo.summary ? (
         <section id="summary">
             <p className="text-center text-lg print:text-base text-foreground/80">{data.personalInfo.summary}</p>
@@ -42,7 +51,7 @@ export function TemplateMinimalist({ data }: { data: ResumeData }) {
                     <span>{job.startDate} - {job.endDate}</span>
                   </div>
                   <div className="col-span-2 mt-2 print:mt-1">
-                    <p className="text-foreground/80">{job.description}</p>
+                    <p className="text-foreground/80 whitespace-pre-wrap">{job.description}</p>
                   </div>
                 </div>
               ))}
@@ -75,7 +84,7 @@ export function TemplateMinimalist({ data }: { data: ResumeData }) {
                 <div key={project.id}>
                     <h3 className="text-lg print:text-base font-semibold">{project.name}</h3>
                     {project.url && <a href={`https://${project.url}`} target="_blank" rel="noopener noreferrer" className="text-sm print:text-xs text-accent hover:underline flex items-center gap-1 mb-2"><LinkIcon className="h-3 w-3" />{project.url}</a>}
-                  <p className="mt-1 text-foreground/80">{project.description}</p>
+                  <p className="mt-1 text-foreground/80 whitespace-pre-wrap">{project.description}</p>
                    <div className="flex flex-wrap gap-2 mt-2">
                     {project.tags.map(tag => <Badge key={tag} variant="outline" className="rounded-sm print:text-xs">{tag}</Badge>)}
                    </div>
@@ -96,6 +105,10 @@ export function TemplateMinimalist({ data }: { data: ResumeData }) {
             </div>
         </section>
     ) : null,
+    ...(data.customSections || []).reduce((acc, section) => {
+        acc[section.id] = <CustomSectionComponent section={section} />;
+        return acc;
+    }, {} as Record<string, React.ReactNode>),
   };
 
   const order = data.sectionOrder || ['summary', 'skills', 'experience', 'education', 'projects', 'certifications'];

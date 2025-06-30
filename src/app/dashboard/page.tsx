@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { ResumeData, Experience, Education, Project, Certification } from "@/types";
+import type { ResumeData, Experience, Education, Project, Certification, CustomSection } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -68,6 +68,9 @@ export default function DashboardPage() {
                 main: MAIN_ELIGIBLE,
               };
             }
+            if (!resumeData.customSections) {
+                resumeData.customSections = [];
+            }
           setData(resumeData);
         } else {
           setData({
@@ -82,7 +85,8 @@ export default function DashboardPage() {
               layout: {
                 sidebar: SIDEBAR_ELIGIBLE,
                 main: MAIN_ELIGIBLE,
-              }
+              },
+              customSections: [],
           })
         }
       };
@@ -215,6 +219,53 @@ export default function DashboardPage() {
           return { ...prev, [field]: items };
       })
   }
+
+  const handleCustomSectionChange = (index: number, e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setData(prev => {
+        if (!prev || !prev.customSections) return prev;
+        const items = [...prev.customSections];
+        items[index] = { ...items[index], [name]: value };
+        return { ...prev, customSections: items };
+    });
+  };
+
+  const handleAddCustomSection = () => {
+    setData(prev => {
+        if (!prev) return null;
+        const newSection = { id: `custom_${crypto.randomUUID()}`, title: 'New Section', content: '' };
+        const newCustomSections = [...(prev.customSections || []), newSection];
+        const newSectionOrder = [...(prev.sectionOrder || []), newSection.id];
+        
+        const newLayout = {
+            ...prev.layout,
+            main: [...(prev.layout?.main || []), newSection.id]
+        };
+
+        return {
+            ...prev,
+            customSections: newCustomSections,
+            sectionOrder: newSectionOrder,
+            layout: newLayout
+        };
+    });
+  };
+
+  const handleRemoveCustomSection = (id: string) => {
+      setData(prev => {
+        if (!prev) return null;
+        return {
+            ...prev,
+            customSections: (prev.customSections || []).filter(item => item.id !== id),
+            sectionOrder: (prev.sectionOrder || []).filter(key => key !== id),
+            layout: {
+                main: (prev.layout?.main || []).filter(key => key !== id),
+                sidebar: (prev.layout?.sidebar || []).filter(key => key !== id),
+            }
+        };
+    });
+  };
+
 
   if (authLoading || !user || !data) {
     return (
@@ -500,7 +551,40 @@ export default function DashboardPage() {
         </CardContent>
     </Card>
     )
-  }
+  };
+
+  const customSectionsCard = (
+      <Card>
+        <CardHeader>
+          <CardTitle className="font-headline">{t('customSections')}</CardTitle>
+          <CardDescription>{t('customSectionsDesc')}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {(data.customSections || []).map((section, index) => (
+            <div key={section.id} className="p-4 border rounded-md relative space-y-4">
+              <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => handleRemoveCustomSection(section.id)}>
+                <Trash2 className="h-4 w-4 text-destructive" />
+              </Button>
+              <div className="space-y-2">
+                <Label>{t('sectionTitle')}</Label>
+                <Input name="title" value={section.title} onChange={(e) => handleCustomSectionChange(index, e)} />
+              </div>
+              <div className="space-y-2">
+                <Label>{t('content')}</Label>
+                <Textarea name="content" value={section.content} onChange={(e) => handleCustomSectionChange(index, e)} rows={5}/>
+              </div>
+            </div>
+          ))}
+          <Button variant="outline" onClick={handleAddCustomSection}>
+            <PlusCircle className="mr-2 h-4 w-4" /> {t('addCustomSection')}
+          </Button>
+          <Separator />
+          <Button onClick={() => handleSave(t('customSections'))} disabled={isSaving} className="bg-accent hover:bg-accent/90">
+            {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> {t('saving')}</> : t('saveSection')}
+          </Button>
+        </CardContent>
+      </Card>
+  );
 
 
   return (
@@ -531,11 +615,12 @@ export default function DashboardPage() {
 
           <TabsContent value="content" className="space-y-8">
             {sectionCards.personalInfo}
-            {sectionOrder.map(key => (
+            {Object.keys(sectionCards).filter(key => key !== 'personalInfo').map(key => (
               <div key={key}>
                 {sectionCards[key]}
               </div>
             ))}
+            {customSectionsCard}
           </TabsContent>
 
           <TabsContent value="appearance">

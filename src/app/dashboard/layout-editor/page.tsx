@@ -16,7 +16,7 @@ import { mockResumeData } from "@/lib/mock-data";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 
-const ALL_SECTIONS = ['skills', 'experience', 'education', 'projects', 'certifications'];
+const STATIC_SECTIONS = ['skills', 'experience', 'education', 'projects', 'certifications'];
 const DEFAULT_LAYOUT = { sidebar: ['skills', 'education', 'certifications'], main: ['experience', 'projects'] };
 const DEFAULT_SECTION_ORDER = ['skills', 'experience', 'education', 'projects', 'certifications'];
 
@@ -54,12 +54,17 @@ export default function LayoutEditorPage() {
             }
         }
         
+        const allCurrentSections = [
+          ...STATIC_SECTIONS,
+          ...(resumeData.customSections || []).map(cs => cs.id)
+        ];
+        
         // Ensure all sections are accounted for, adding new ones to main/default order
         const existingLayoutSections = new Set([...(resumeData.layout?.sidebar || []), ...(resumeData.layout?.main || [])]);
-        const newLayoutSections = ALL_SECTIONS.filter(s => !existingLayoutSections.has(s));
+        const newLayoutSections = allCurrentSections.filter(s => !existingLayoutSections.has(s));
         
         const existingOrderSections = new Set(resumeData.sectionOrder || []);
-        const newOrderSections = ALL_SECTIONS.filter(s => !existingOrderSections.has(s));
+        const newOrderSections = allCurrentSections.filter(s => !existingOrderSections.has(s));
 
         resumeData.layout = {
             sidebar: resumeData.layout?.sidebar || DEFAULT_LAYOUT.sidebar,
@@ -115,11 +120,15 @@ export default function LayoutEditorPage() {
     setIsSaving(true);
     
     let dataToSave = { ...data };
+    
+    const allCurrentSections = [
+      ...STATIC_SECTIONS,
+      ...(data.customSections || []).map(cs => cs.id)
+    ];
 
     if (layoutMode === 'single') {
-        // In single column mode, all sections go to 'main', sidebar is empty
         dataToSave.layout = {
-            main: [...ALL_SECTIONS],
+            main: [...allCurrentSections],
             sidebar: []
         };
     }
@@ -140,6 +149,12 @@ export default function LayoutEditorPage() {
     }
     setIsSaving(false);
   };
+
+  const getSectionTitle = (sectionKey: string) => {
+    if (!data) return sectionKey;
+    const customSection = data.customSections?.find(cs => cs.id === sectionKey);
+    return customSection ? customSection.title : t(sectionKey as any);
+  }
 
 
   if (authLoading || !user || !data || !data.layout || !data.sectionOrder) {
@@ -203,7 +218,7 @@ export default function LayoutEditorPage() {
                         <div className="space-y-3 p-2 bg-background rounded-md border border-dashed">
                             {data.sectionOrder.map((section, index) => (
                                 <div key={section} className="flex items-center justify-between p-3 bg-muted rounded-md text-sm shadow-sm">
-                                    <span className="font-medium capitalize">{t(section as any)}</span>
+                                    <span className="font-medium capitalize">{getSectionTitle(section)}</span>
                                     <div className="flex gap-1">
                                         <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => moveInSectionOrder(section, 'up')} disabled={index === 0}>
                                             <ArrowUp className="h-5 w-5" />
@@ -229,7 +244,7 @@ export default function LayoutEditorPage() {
                                     <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => moveBetweenColumns(section, 'main', 'sidebar')}>
                                         <ArrowLeft className="h-5 w-5" />
                                     </Button>
-                                    <span className="font-medium capitalize">{t(section as any)}</span>
+                                    <span className="font-medium capitalize">{getSectionTitle(section)}</span>
                                     <div className="w-8"></div>
                                     </div>
                                 ))}
@@ -247,7 +262,7 @@ export default function LayoutEditorPage() {
                                 {orderedSidebar.map(section => (
                                     <div key={section} className="flex items-center justify-between p-3 bg-muted rounded-md text-sm shadow-sm">
                                     <div className="w-8"></div>
-                                    <span className="font-medium capitalize">{t(section as any)}</span>
+                                    <span className="font-medium capitalize">{getSectionTitle(section)}</span>
                                     <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => moveBetweenColumns(section, 'sidebar', 'main')}>
                                         <ArrowRight className="h-5 w-5" />
                                     </Button>

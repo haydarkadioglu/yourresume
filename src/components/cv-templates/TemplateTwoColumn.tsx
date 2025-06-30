@@ -1,12 +1,28 @@
 
-import type { ResumeData } from "@/types";
+
+import type { ResumeData, CustomSection } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Mail, Phone, Link as LinkIcon, Linkedin, Github } from "lucide-react";
 import React from "react";
 
+const CustomSectionSidebarComponent = ({ section }: { section: CustomSection }) => (
+    <section id={section.id}>
+        <h2 className="text-xl print:text-lg font-bold font-headline text-primary mb-3 border-b pb-2">{section.title}</h2>
+        <p className="text-muted-foreground text-sm print:text-xs whitespace-pre-wrap">{section.content}</p>
+    </section>
+);
+
+const CustomSectionMainComponent = ({ section }: { section: CustomSection }) => (
+    <section id={section.id}>
+        <h2 className="text-2xl print:text-xl font-bold font-headline text-primary mb-4 border-b pb-2">{section.title}</h2>
+        <p className="mt-4 print:mt-2 text-foreground/80 whitespace-pre-wrap">{section.content}</p>
+    </section>
+);
+
+
 export function TemplateTwoColumn({ data }: { data: ResumeData }) {
-  const allSectionComponents = {
+  const allSectionComponents: Record<string, React.ReactNode> = {
     summary: data.personalInfo.summary ? (
       <section id="summary" className="print:mb-6">
         <h2 className="text-2xl print:text-xl font-bold font-headline text-primary mb-3 border-b pb-2">Summary</h2>
@@ -37,7 +53,7 @@ export function TemplateTwoColumn({ data }: { data: ResumeData }) {
                 <h4>{job.company}</h4>
                 <span>{job.location}</span>
               </div>
-              <p className="mt-2 print:mt-1 text-foreground/80">{job.description}</p>
+              <p className="mt-2 print:mt-1 text-foreground/80 whitespace-pre-wrap">{job.description}</p>
             </div>
           ))}
         </div>
@@ -67,7 +83,7 @@ export function TemplateTwoColumn({ data }: { data: ResumeData }) {
                 <h3 className="text-lg print:text-base font-semibold">{project.name}</h3>
                 {project.url && <a href={`https://${project.url}`} target="_blank" rel="noopener noreferrer" className="text-sm print:text-xs text-accent hover:underline flex items-center gap-1"><LinkIcon className="h-3 w-3" />View Project</a>}
               </div>
-              <p className="mt-1 text-foreground/80">{project.description}</p>
+              <p className="mt-1 text-foreground/80 whitespace-pre-wrap">{project.description}</p>
               <div className="flex flex-wrap gap-2 mt-2">
                 {project.tags.map(tag => <Badge key={tag} variant="outline" className="print:text-xs">{tag}</Badge>)}
               </div>
@@ -88,6 +104,17 @@ export function TemplateTwoColumn({ data }: { data: ResumeData }) {
         </div>
       </section>
     ) : null,
+    // Note: We create two versions of custom section components for rendering,
+    // but the data source is the same. The layout choice determines which is used.
+    ...(data.customSections || []).reduce((acc, section) => {
+        if (!section.title || !section.content) return acc;
+        if(data.layout?.sidebar.includes(section.id)) {
+            acc[section.id] = <CustomSectionSidebarComponent section={section} />;
+        } else {
+            acc[section.id] = <CustomSectionMainComponent section={section} />;
+        }
+        return acc;
+    }, {} as Record<string, React.ReactNode>),
   };
   
   const layout = data.layout || { sidebar: ['skills', 'education', 'certifications'], main: ['experience', 'projects'] };
@@ -185,9 +212,10 @@ export function TemplateTwoColumn({ data }: { data: ResumeData }) {
           {(summaryComponent && mainSections.length > 0) && <Separator className="my-8 print:my-6" />}
 
           <div className="space-y-8 print:space-y-6">
-            {mainSections.map(({ key, component }) => (
+            {mainSections.map(({ key, component }, index) => (
                 <React.Fragment key={key}>
-                {component}
+                    {component}
+                    {index < mainSections.length - 1 && <Separator className="my-8 print:my-6" />}
                 </React.Fragment>
             ))}
           </div>

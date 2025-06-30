@@ -1,3 +1,4 @@
+
 export interface ResumeData {
   personalInfo: {
     name: string;
@@ -16,6 +17,7 @@ export interface ResumeData {
   education: Education[];
   projects: Project[];
   certifications: Certification[];
+  customSections?: CustomSection[];
   sectionOrder?: string[];
   layout?: {
     sidebar: string[];
@@ -55,6 +57,12 @@ export interface Certification {
   name: string;
   issuer: string;
   date: string;
+}
+
+export interface CustomSection {
+  id: string;
+  title: string;
+  content: string;
 }
 
 export interface LoginHistory {
