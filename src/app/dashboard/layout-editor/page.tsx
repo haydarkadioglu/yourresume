@@ -16,9 +16,9 @@ import { mockResumeData } from "@/lib/mock-data";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 
-const STATIC_SECTIONS = ['skills', 'experience', 'education', 'projects', 'certifications'];
-const DEFAULT_LAYOUT = { sidebar: ['skills', 'education', 'certifications'], main: ['experience', 'projects'] };
-const DEFAULT_SECTION_ORDER = ['skills', 'experience', 'education', 'projects', 'certifications'];
+const STATIC_SECTIONS = ['contact', 'skills', 'experience', 'education', 'projects', 'certifications'];
+const DEFAULT_LAYOUT = { sidebar: ['contact', 'skills', 'education', 'certifications'], main: ['experience', 'projects'] };
+const DEFAULT_SECTION_ORDER = ['contact', 'skills', 'experience', 'education', 'projects', 'certifications'];
 
 export default function LayoutEditorPage() {
   const [data, setData] = useState<ResumeData | null>(null);
@@ -151,6 +151,7 @@ export default function LayoutEditorPage() {
   };
 
   const getSectionTitle = (sectionKey: string) => {
+    if (sectionKey === 'contact') return t('contactInfo');
     if (!data) return sectionKey;
     const customSection = data.customSections?.find(cs => cs.id === sectionKey);
     return customSection ? customSection.title : t(sectionKey as any);

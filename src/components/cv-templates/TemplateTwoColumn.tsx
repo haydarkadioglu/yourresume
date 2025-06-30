@@ -6,6 +6,45 @@ import { Separator } from "@/components/ui/separator";
 import { Mail, Phone, Link as LinkIcon, Linkedin, Github } from "lucide-react";
 import React from "react";
 
+const ContactSectionComponent = ({ data, inSidebar }: { data: ResumeData; inSidebar: boolean }) => {
+  const header = (
+    <div className={inSidebar ? "" : "text-center"}>
+      <h1 className={`${inSidebar ? "text-3xl" : "text-4xl sm:text-5xl"} print:text-3xl font-bold font-headline text-primary`}>{data.personalInfo.name}</h1>
+      <p className={`${inSidebar ? "text-lg" : "text-xl"} print:text-lg text-muted-foreground mt-1`}>{data.personalInfo.title}</p>
+    </div>
+  );
+
+  const contactDetails = (
+    <div className="space-y-2 print:space-y-1.5 mt-3 text-sm print:text-xs text-muted-foreground break-all">
+      {data.personalInfo.email && <a href={`mailto:${data.personalInfo.email}`} className="flex items-center gap-3 hover:text-primary transition-colors"><Mail className="h-4 w-4 flex-shrink-0" /><span>{data.personalInfo.email}</span></a>}
+      {data.personalInfo.phone && <a href={`tel:${data.personalInfo.phone}`} className="flex items-center gap-3 hover:text-primary transition-colors"><Phone className="h-4 w-4 flex-shrink-0" /><span>{data.personalInfo.phone}</span></a>}
+      {data.personalInfo.website && <a href={`https://${data.personalInfo.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-primary transition-colors"><LinkIcon className="h-4 w-4 flex-shrink-0" /><span>{data.personalInfo.website}</span></a>}
+      {data.personalInfo.linkedin && <a href={`https://linkedin.com/in/${data.personalInfo.linkedin}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-primary transition-colors"><Linkedin className="h-4 w-4 flex-shrink-0" /><span>{data.personalInfo.linkedin}</span></a>}
+      {data.personalInfo.github && <a href={`https://github.com/${data.personalInfo.github}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-primary transition-colors"><Github className="h-4 w-4 flex-shrink-0" /><span>{data.personalInfo.github}</span></a>}
+    </div>
+  );
+
+  if (inSidebar) {
+    return (
+      <section id="contact-info">
+        {header}
+        <Separator className="my-4" />
+        <h2 className="text-xl print:text-lg font-bold font-headline text-primary">Contact</h2>
+        {contactDetails}
+      </section>
+    );
+  }
+
+  return (
+    <header className="border-b border-border pb-6">
+      {header}
+      <div className="flex justify-center items-center flex-wrap gap-x-6 gap-y-2 mt-4 print:mt-2 text-sm print:text-xs text-muted-foreground">
+        {contactDetails.props.children}
+      </div>
+    </header>
+  );
+};
+
 const CustomSectionSidebarComponent = ({ section }: { section: CustomSection }) => (
     <section id={section.id}>
         <h2 className="text-xl print:text-lg font-bold font-headline text-primary mb-3 border-b pb-2">{section.title}</h2>
@@ -104,8 +143,6 @@ export function TemplateTwoColumn({ data }: { data: ResumeData }) {
         </div>
       </section>
     ) : null,
-    // Note: We create two versions of custom section components for rendering,
-    // but the data source is the same. The layout choice determines which is used.
     ...(data.customSections || []).reduce((acc, section) => {
         if (!section.title || !section.content) return acc;
         if(data.layout?.sidebar.includes(section.id)) {
@@ -117,54 +154,44 @@ export function TemplateTwoColumn({ data }: { data: ResumeData }) {
     }, {} as Record<string, React.ReactNode>),
   };
   
-  const layout = data.layout || { sidebar: ['skills', 'education', 'certifications'], main: ['experience', 'projects'] };
+  const layout = data.layout || { sidebar: [], main: [] };
   
   // Single Column View (if sidebar is empty)
   if (!layout.sidebar || layout.sidebar.length === 0) {
-    const singleColumnOrder = data.sectionOrder?.filter(key => layout.main.includes(key)) || layout.main;
-    const visibleSections = singleColumnOrder
-      .map(key => ({ key, component: allSectionComponents[key as keyof typeof allSectionComponents] }))
-      .filter(section => section.component);
+      const allSections = [ 'contact', ...Object.keys(allSectionComponents).filter(k => k !== 'contact') ];
+      const singleColumnOrder = data.sectionOrder?.filter(key => allSections.includes(key)) || allSections;
+      
+      const visibleSections = singleColumnOrder
+        .map(key => ({ key, component: allSectionComponents[key as keyof typeof allSectionComponents] }))
+        .filter(section => section.component);
       
     return (
       <div id="cv-container" className="printable-area max-w-4xl mx-auto bg-card p-8 sm:p-12 print:p-8 shadow-lg rounded-lg print:shadow-none print:rounded-none">
-        <header className="text-center border-b border-border pb-6 mb-6 print:pb-4 print:mb-4">
-          <h1 className="text-4xl sm:text-5xl print:text-4xl font-bold font-headline text-primary">{data.personalInfo.name}</h1>
-          <p className="text-xl print:text-lg text-muted-foreground mt-2">{data.personalInfo.title}</p>
-          <div className="flex justify-center items-center flex-wrap gap-x-6 gap-y-2 mt-4 print:mt-2 text-sm print:text-xs text-muted-foreground">
-            {data.personalInfo.email && <a href={`mailto:${data.personalInfo.email}`} className="flex items-center gap-2 hover:text-primary transition-colors"><Mail className="h-4 w-4 print:h-3 print:w-3" />{data.personalInfo.email}</a>}
-            {data.personalInfo.phone && <a href={`tel:${data.personalInfo.phone}`} className="flex items-center gap-2 hover:text-primary transition-colors"><Phone className="h-4 w-4 print:h-3 print:w-3" />{data.personalInfo.phone}</a>}
-            {data.personalInfo.website && <a href={`https://${data.personalInfo.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors"><LinkIcon className="h-4 w-4 print:h-3 print:w-3" />{data.personalInfo.website}</a>}
-            {data.personalInfo.linkedin && <a href={`https://linkedin.com/in/${data.personalInfo.linkedin}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors"><Linkedin className="h-4 w-4 print:h-3 print:w-3" />{data.personalInfo.linkedin}</a>}
-            {data.personalInfo.github && <a href={`https://github.com/${data.personalInfo.github}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors"><Github className="h-4 w-4 print:h-3 print:w-3" />{data.personalInfo.github}</a>}
-          </div>
-        </header>
+        <ContactSectionComponent data={data} inSidebar={false} />
 
-        <main className="print:text-sm">
-          {allSectionComponents.summary && (
-              <>
-                  {allSectionComponents.summary}
-                  <Separator className="my-8 print:my-6" />
-              </>
-          )}
-          {visibleSections.map(({ key, component }, index) => (
-              <React.Fragment key={key}>
-                  {component}
-                  {index < visibleSections.length - 1 && <Separator className="my-8 print:my-6" />}
-              </React.Fragment>
-          ))}
+        <main className="print:text-sm mt-8 print:mt-6">
+          <div className="space-y-8 print:space-y-6">
+            {visibleSections.filter(s => s.key !== 'contact').map(({ key, component }, index, arr) => (
+                <React.Fragment key={key}>
+                    {component}
+                    {index < arr.length - 1 && <Separator className="my-8 print:my-6" />}
+                </React.Fragment>
+            ))}
+          </div>
         </main>
       </div>
     );
   }
 
   // Two Column View (default)
+  const contactInSidebar = layout.sidebar.includes('contact');
+
   const sidebarOrder = data.sectionOrder 
-    ? data.sectionOrder.filter(key => layout.sidebar.includes(key))
-    : layout.sidebar;
+    ? data.sectionOrder.filter(key => layout.sidebar.includes(key) && key !== 'contact')
+    : layout.sidebar.filter(key => key !== 'contact');
   
   const mainOrder = data.sectionOrder
-    ? data.sectionOrder.filter(key => layout.main.includes(key) && key !== 'summary') // Summary is handled separately
+    ? data.sectionOrder.filter(key => layout.main.includes(key) && key !== 'summary')
     : layout.main.filter(key => key !== 'summary');
 
   const sidebarSections = sidebarOrder
@@ -182,18 +209,8 @@ export function TemplateTwoColumn({ data }: { data: ResumeData }) {
       <div className="flex flex-col md:flex-row gap-8 print:gap-6">
         {/* Left Column (Sidebar) */}
         <aside className="md:w-1/3 print:w-1/3 space-y-8 print:space-y-6">
-          <section id="contact">
-             <h2 className="text-xl print:text-lg font-bold font-headline text-primary mb-3 border-b pb-2">Contact</h2>
-             <div className="space-y-2 print:space-y-1.5 mt-3 text-sm print:text-xs text-muted-foreground break-all">
-                {data.personalInfo.email && <a href={`mailto:${data.personalInfo.email}`} className="flex items-center gap-3 hover:text-primary transition-colors"><Mail className="h-4 w-4 flex-shrink-0" /><span>{data.personalInfo.email}</span></a>}
-                {data.personalInfo.phone && <a href={`tel:${data.personalInfo.phone}`} className="flex items-center gap-3 hover:text-primary transition-colors"><Phone className="h-4 w-4 flex-shrink-0" /><span>{data.personalInfo.phone}</span></a>}
-                {data.personalInfo.website && <a href={`https://${data.personalInfo.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-primary transition-colors"><LinkIcon className="h-4 w-4 flex-shrink-0" /><span>{data.personalInfo.website}</span></a>}
-                {data.personalInfo.linkedin && <a href={`https://linkedin.com/in/${data.personalInfo.linkedin}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-primary transition-colors"><Linkedin className="h-4 w-4 flex-shrink-0" /><span>{data.personalInfo.linkedin}</span></a>}
-                {data.personalInfo.github && <a href={`https://github.com/${data.personalInfo.github}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-primary transition-colors"><Github className="h-4 w-4 flex-shrink-0" /><span>{data.personalInfo.github}</span></a>}
-             </div>
-          </section>
-
-          {sidebarSections.map(({ key, component }) => (
+           {contactInSidebar && <ContactSectionComponent data={data} inSidebar={true} />}
+           {sidebarSections.map(({ key, component }) => (
             <React.Fragment key={key}>
               {component}
             </React.Fragment>
@@ -202,16 +219,13 @@ export function TemplateTwoColumn({ data }: { data: ResumeData }) {
 
         {/* Right Column (Main) */}
         <main className="md:w-2/3 print:w-2/3 print:text-sm">
-          <header className="mb-8 print:mb-6">
-            <h1 className="text-4xl sm:text-5xl print:text-4xl font-bold font-headline text-primary">{data.personalInfo.name}</h1>
-            <p className="text-xl print:text-lg text-muted-foreground mt-2">{data.personalInfo.title}</p>
-          </header>
-
-          {summaryComponent}
+          {!contactInSidebar && <ContactSectionComponent data={data} inSidebar={false} />}
           
-          {(summaryComponent && mainSections.length > 0) && <Separator className="my-8 print:my-6" />}
+          <div className="mt-8 print:mt-6 space-y-8 print:space-y-6">
+            {summaryComponent}
+            
+            {(summaryComponent && mainSections.length > 0) && <Separator className="my-8 print:my-6" />}
 
-          <div className="space-y-8 print:space-y-6">
             {mainSections.map(({ key, component }, index) => (
                 <React.Fragment key={key}>
                     {component}

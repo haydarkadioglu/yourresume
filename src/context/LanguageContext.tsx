@@ -139,6 +139,7 @@ const translations = {
     customSectionsDesc: "Add your own sections like 'References' or 'Awards'.",
     addCustomSection: "Add Custom Section",
     sectionTitle: "Section Title",
+    contactInfo: "Contact Info",
   },
   tr: {
     home: "Anasayfa",
@@ -274,6 +275,7 @@ const translations = {
     customSectionsDesc: "'Referanslar' veya 'Ödüller' gibi kendi bölümlerinizi ekleyin.",
     addCustomSection: "Özel Bölüm Ekle",
     sectionTitle: "Bölüm Başlığı",
+    contactInfo: "İletişim Bilgileri",
   },
 };
 
