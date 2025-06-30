@@ -127,6 +127,13 @@ export default function LayoutEditorPage() {
                 <CardDescription>{t('customizeLayoutDesc')}</CardDescription>
             </CardHeader>
             <CardContent>
+                <div className="text-sm text-muted-foreground bg-muted/50 p-4 rounded-md mb-8 border">
+                    <h4 className="font-bold text-foreground mb-2">{t('howItWorks')}</h4>
+                    <ul className="list-disc list-inside space-y-1">
+                        <li><strong>{t('mainContent')}:</strong> {t('mainContentInfo')}</li>
+                        <li><strong>{t('sidebar')}:</strong> {t('sidebarInfo')}</li>
+                    </ul>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Main Content Column */}
                     <div className="border p-4 rounded-lg bg-gray-50 dark:bg-gray-800/50">
@@ -172,7 +179,9 @@ export default function LayoutEditorPage() {
             </CardContent>
         </Card>
         <div className="mt-8 text-center">
-            <p className="text-sm text-muted-foreground">{t('layoutEditorNote')}</p>
+            <p className="text-sm text-muted-foreground">
+                <span className="font-bold">⚠️ {t('layoutEditorNote')}</span>
+            </p>
         </div>
       </main>
     </div>
