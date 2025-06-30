@@ -675,21 +675,24 @@ export default function DashboardPage() {
                            <Label
                               htmlFor="two-column"
                               className={cn( "rounded-lg border-2 p-1 transition-all cursor-pointer", data.personalInfo.template === 'two-column' ? "border-primary" : "border-transparent" )}
-                              onDoubleClick={() => router.push('/dashboard/layout-editor')}
                             >
                               <RadioGroupItem value="two-column" id="two-column" className="sr-only"/>
-                              <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-muted/30 border-2 border-dashed flex items-center justify-center">
-                                  <PlusCircle className="h-12 w-12 text-muted-foreground" />
+                              <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-background border-2 border-dashed flex items-center justify-center" onClick={() => router.push('/dashboard/layout-editor')}>
+                                  <LayoutTemplate className="h-12 w-12 text-muted-foreground" />
                               </div>
                               <p className="text-center font-medium mt-2">{t('twoColumn')}</p>
                            </Label>
                          </TooltipTrigger>
                          <TooltipContent>
-                           <p>{t('doubleClickToEdit')}</p>
+                           <p>{t('customizeLayout')}</p>
                          </TooltipContent>
                        </Tooltip>
                     </RadioGroup>
                   </div>
+
+                  <Button onClick={() => router.push('/dashboard/layout-editor')} variant="outline" className="gap-2">
+                     <LayoutTemplate /> {t('layoutEditor')}
+                  </Button>
                   
                   {data.personalInfo.template === 'modern' && <p className="text-sm text-amber-600 dark:text-amber-500 mt-2">{t('modernTemplateWarning')}</p>}
 
