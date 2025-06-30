@@ -28,6 +28,7 @@ import { TemplateTwoColumn } from "@/components/cv-templates/TemplateTwoColumn";
 import { cn } from "@/lib/utils";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/context/LanguageContext";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const SIDEBAR_ELIGIBLE = ['skills', 'education', 'certifications'];
 const MAIN_ELIGIBLE = ['experience', 'projects'];
@@ -611,100 +612,93 @@ export default function DashboardPage() {
           </TabsContent>
 
           <TabsContent value="appearance">
-            <Card>
-              <CardHeader>
-                <CardTitle className="font-headline">{t('appearanceManager')}</CardTitle>
-                <CardDescription>
-                  {t('appearanceManagerDesc')}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <Label className="text-base font-medium">{t('baseTemplate')}</Label>
-                   <RadioGroup
-                      value={data.personalInfo.template}
-                      onValueChange={handleTemplateChange}
-                      className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2"
-                  >
-                    <Label
-                      htmlFor="classic"
-                      className={cn( "rounded-lg border-2 p-1 transition-all cursor-pointer", data.personalInfo.template === 'classic' ? "border-primary" : "border-transparent" )}
+             <TooltipProvider>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="font-headline">{t('appearanceManager')}</CardTitle>
+                  <CardDescription>
+                    {t('appearanceManagerDesc')}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div>
+                    <Label className="text-base font-medium">{t('baseTemplate')}</Label>
+                    <RadioGroup
+                        value={data.personalInfo.template}
+                        onValueChange={handleTemplateChange}
+                        className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2"
                     >
-                          <RadioGroupItem value="classic" id="classic" className="sr-only"/>
-                          <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-background border pointer-events-none">
-                              <div className="transform scale-[0.25] origin-top-left">
-                                  <div className="w-[1280px] h-[1810px]">
-                                      <TemplateClassic data={data} />
-                                  </div>
+                      <Label
+                        htmlFor="classic"
+                        className={cn( "rounded-lg border-2 p-1 transition-all cursor-pointer", data.personalInfo.template === 'classic' ? "border-primary" : "border-transparent" )}
+                      >
+                            <RadioGroupItem value="classic" id="classic" className="sr-only"/>
+                            <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-background border pointer-events-none">
+                                <div className="transform scale-[0.25] origin-top-left">
+                                    <div className="w-[1280px] h-[1810px]">
+                                        <TemplateClassic data={data} />
+                                    </div>
+                                </div>
+                            </div>
+                            <p className="text-center font-medium mt-2">{t('classic')}</p>
+                      </Label>
+                      <Label
+                        htmlFor="modern"
+                        className={cn( "rounded-lg border-2 p-1 transition-all cursor-pointer", data.personalInfo.template === 'modern' ? "border-primary" : "border-transparent" )}
+                      >
+                            <RadioGroupItem value="modern" id="modern" className="sr-only"/>
+                            <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-background border pointer-events-none">
+                                <div className="transform scale-[0.25] origin-top-left">
+                                    <div className="w-[1280px] h-[1810px]">
+                                        <TemplateModern data={data} />
+                                    </div>
+                                </div>
+                            </div>
+                            <p className="text-center font-medium mt-2">{t('modern')}</p>
+                      </Label>
+                      <Label
+                        htmlFor="minimalist"
+                        className={cn( "rounded-lg border-2 p-1 transition-all cursor-pointer", data.personalInfo.template === 'minimalist' ? "border-primary" : "border-transparent" )}
+                      >
+                            <RadioGroupItem value="minimalist" id="minimalist" className="sr-only"/>
+                            <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-background border pointer-events-none">
+                                <div className="transform scale-[0.25] origin-top-left">
+                                    <div className="w-[1280px] h-[1810px]">
+                                        <TemplateMinimalist data={data} />
+                                    </div>
+                                </div>
+                            </div>
+                          <p className="text-center font-medium mt-2">{t('minimalist')}</p>
+                      </Label>
+                       <Tooltip>
+                        <TooltipTrigger asChild>
+                           <Label
+                              htmlFor="two-column"
+                              className={cn( "rounded-lg border-2 p-1 transition-all cursor-pointer", data.personalInfo.template === 'two-column' ? "border-primary" : "border-transparent" )}
+                              onDoubleClick={() => router.push('/dashboard/layout-editor')}
+                            >
+                              <RadioGroupItem value="two-column" id="two-column" className="sr-only"/>
+                              <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-muted/30 border-2 border-dashed flex items-center justify-center">
+                                  <PlusCircle className="h-12 w-12 text-muted-foreground" />
                               </div>
-                          </div>
-                          <p className="text-center font-medium mt-2">{t('classic')}</p>
-                    </Label>
-                    <Label
-                      htmlFor="modern"
-                      className={cn( "rounded-lg border-2 p-1 transition-all cursor-pointer", data.personalInfo.template === 'modern' ? "border-primary" : "border-transparent" )}
-                    >
-                          <RadioGroupItem value="modern" id="modern" className="sr-only"/>
-                          <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-background border pointer-events-none">
-                              <div className="transform scale-[0.25] origin-top-left">
-                                  <div className="w-[1280px] h-[1810px]">
-                                      <TemplateModern data={data} />
-                                  </div>
-                              </div>
-                          </div>
-                          <p className="text-center font-medium mt-2">{t('modern')}</p>
-                    </Label>
-                    <Label
-                      htmlFor="minimalist"
-                      className={cn( "rounded-lg border-2 p-1 transition-all cursor-pointer", data.personalInfo.template === 'minimalist' ? "border-primary" : "border-transparent" )}
-                    >
-                          <RadioGroupItem value="minimalist" id="minimalist" className="sr-only"/>
-                          <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-background border pointer-events-none">
-                              <div className="transform scale-[0.25] origin-top-left">
-                                  <div className="w-[1280px] h-[1810px]">
-                                      <TemplateMinimalist data={data} />
-                                  </div>
-                              </div>
-                          </div>
-                        <p className="text-center font-medium mt-2">{t('minimalist')}</p>
-                    </Label>
-                    <Label
-                      htmlFor="two-column"
-                      className={cn( "rounded-lg border-2 p-1 transition-all cursor-pointer", data.personalInfo.template === 'two-column' ? "border-primary" : "border-transparent" )}
-                    >
-                          <RadioGroupItem value="two-column" id="two-column" className="sr-only"/>
-                          <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-background border pointer-events-none">
-                              <div className="transform scale-[0.25] origin-top-left">
-                                  <div className="w-[1280px] h-[1810px]">
-                                      <TemplateTwoColumn data={data} />
-                                  </div>
-                              </div>
-                          </div>
-                        <p className="text-center font-medium mt-2">{t('twoColumn')}</p>
-                    </Label>
-                  </RadioGroup>
-                </div>
-                
-                {data.personalInfo.template === 'two-column' && (
-                  <div className="space-y-4 pt-4 border-t">
-                      <Label className="text-base font-medium">{t('twoColumnLayout')}</Label>
-                       <p className="text-sm text-muted-foreground">{t('twoColumnLayoutDesc')}</p>
-                      <Button asChild>
-                        <Link href="/dashboard/layout-editor">
-                            <LayoutTemplate className="mr-2 h-4 w-4" />
-                            {t('openLayoutEditor')}
-                        </Link>
-                      </Button>
+                              <p className="text-center font-medium mt-2">{t('twoColumn')}</p>
+                           </Label>
+                         </TooltipTrigger>
+                         <TooltipContent>
+                           <p>{t('doubleClickToEdit')}</p>
+                         </TooltipContent>
+                       </Tooltip>
+                    </RadioGroup>
                   </div>
-                )}
-                
-                 {data.personalInfo.template === 'modern' && <p className="text-sm text-amber-600 dark:text-amber-500 mt-2">{t('modernTemplateWarning')}</p>}
+                  
+                  {data.personalInfo.template === 'modern' && <p className="text-sm text-amber-600 dark:text-amber-500 mt-2">{t('modernTemplateWarning')}</p>}
 
-                <Button onClick={() => handleSave(t('appearance'))} disabled={isSaving} className="bg-accent hover:bg-accent/90">
-                  {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> {t('saving')}</> : t('saveAppearance')}
-                </Button>
-              </CardContent>
-            </Card>
+                  <Button onClick={() => handleSave(t('appearance'))} disabled={isSaving} className="bg-accent hover:bg-accent/90">
+                    {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> {t('saving')}</> : t('saveAppearance')}
+                  </Button>
+                </CardContent>
+              </Card>
+            </TooltipProvider>
           </TabsContent>
           
           <TabsContent value="settings">
