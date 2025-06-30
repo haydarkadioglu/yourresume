@@ -7,8 +7,8 @@ export const mockResumeData: ResumeData = {
     email: "alex.doe@example.com",
     phone: "+1 (555) 123-4567",
     website: "alexdoe.dev",
-    linkedin: "linkedin.com/in/alexdoe",
-    github: "github.com/alexdoe",
+    linkedin: "alexdoe",
+    github: "alexdoe",
     summary:
       "Innovative Senior Software Engineer with over 8 years of experience in developing scalable web applications. Proficient in React, Node.js, and cloud technologies. Passionate about creating clean, efficient code and leading high-performing teams to deliver exceptional products.",
     template: "classic",
