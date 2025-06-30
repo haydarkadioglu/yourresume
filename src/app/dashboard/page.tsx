@@ -23,6 +23,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { TemplateClassic } from "@/components/cv-templates/TemplateClassic";
 import { TemplateModern } from "@/components/cv-templates/TemplateModern";
 import { TemplateMinimalist } from "@/components/cv-templates/TemplateMinimalist";
+import { TemplateTwoColumn } from "@/components/cv-templates/TemplateTwoColumn";
 import { cn } from "@/lib/utils";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/context/LanguageContext";
@@ -176,7 +177,7 @@ export default function DashboardPage() {
     })
   }
 
-  const handleTemplateChange = (value: 'classic' | 'modern' | 'minimalist') => {
+  const handleTemplateChange = (value: 'classic' | 'modern' | 'minimalist' | 'two-column') => {
       setData(prev => {
           if(!prev) return null;
           return {
@@ -609,7 +610,7 @@ export default function DashboardPage() {
                 <RadioGroup
                     value={data.personalInfo.template}
                     onValueChange={handleTemplateChange}
-                    className="grid grid-cols-2 md:grid-cols-3 gap-4"
+                    className="grid grid-cols-2 md:grid-cols-4 gap-4"
                 >
                    <Label
                      htmlFor="classic"
@@ -667,6 +668,25 @@ export default function DashboardPage() {
                             </div>
                         </div>
                        <p className="text-center font-medium mt-2">{t('minimalist')}</p>
+                   </Label>
+                   <Label
+                     htmlFor="two-column"
+                     className={cn(
+                       "rounded-lg border-2 p-1 transition-all cursor-pointer",
+                       data.personalInfo.template === 'two-column'
+                         ? "border-primary"
+                         : "border-transparent"
+                     )}
+                   >
+                        <RadioGroupItem value="two-column" id="two-column" className="sr-only"/>
+                        <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-background border pointer-events-none">
+                            <div className="transform scale-[0.25] origin-top-left">
+                                <div className="w-[1280px] h-[1810px]">
+                                    <TemplateTwoColumn data={data} />
+                                </div>
+                            </div>
+                        </div>
+                       <p className="text-center font-medium mt-2">{t('twoColumn')}</p>
                    </Label>
                 </RadioGroup>
                 <Button onClick={() => handleSave(t('appearance'))} disabled={isSaving} className="bg-accent hover:bg-accent/90">

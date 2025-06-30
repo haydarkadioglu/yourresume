@@ -5,6 +5,7 @@ import type { ResumeData } from "@/types";
 import { TemplateClassic } from "@/components/cv-templates/TemplateClassic";
 import { TemplateModern } from "@/components/cv-templates/TemplateModern";
 import { TemplateMinimalist } from "@/components/cv-templates/TemplateMinimalist";
+import { TemplateTwoColumn } from "@/components/cv-templates/TemplateTwoColumn";
 
 function Resume({ data }: { data: ResumeData }) {
   const template = data.personalInfo.template || "classic";
@@ -14,6 +15,8 @@ function Resume({ data }: { data: ResumeData }) {
       return <TemplateModern data={data} />;
     case 'minimalist':
       return <TemplateMinimalist data={data} />;
+    case 'two-column':
+      return <TemplateTwoColumn data={data} />;
     case 'classic':
     default:
       return <TemplateClassic data={data} />;
