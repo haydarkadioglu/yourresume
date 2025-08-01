@@ -39,9 +39,9 @@ export function TemplateClassic({ data }: { data: ResumeData }) {
             <div key={job.id}>
               <div className="flex justify-between items-baseline">
                 <h3 className="text-lg print:text-base font-semibold">{job.title}</h3>
-                <span className="text-sm print:text-xs text-muted-foreground">{job.startDate} - {job.endDate}</span>
+                <span className="text-sm print:text-xs text-foreground/80">{job.startDate} - {job.endDate}</span>
               </div>
-              <div className="flex justify-between items-baseline text-md print:text-sm text-muted-foreground">
+              <div className="flex justify-between items-baseline text-md print:text-sm text-foreground/80">
                 <h4>{job.company}</h4>
                 <span>{job.location}</span>
               </div>
@@ -59,9 +59,9 @@ export function TemplateClassic({ data }: { data: ResumeData }) {
             <div key={edu.id}>
               <div className="flex justify-between items-baseline">
                 <h3 className="text-lg print:text-base font-semibold">{edu.degree}</h3>
-                <span className="text-sm print:text-xs text-muted-foreground">{edu.startDate} - {edu.endDate}</span>
+                <span className="text-sm print:text-xs text-foreground/80">{edu.startDate} - {edu.endDate}</span>
               </div>
-              <div className="flex justify-between items-baseline text-md print:text-sm text-muted-foreground">
+              <div className="flex justify-between items-baseline text-md print:text-sm text-foreground/80">
                 <h4>{edu.institution}</h4>
                 <span>{edu.location}</span>
               </div>
@@ -95,7 +95,7 @@ export function TemplateClassic({ data }: { data: ResumeData }) {
         <div className="space-y-2 print:space-y-1">
           {data.certifications.map((cert) => (
             <div key={cert.id}>
-              <p className="font-semibold print:font-medium">{cert.name} - <span className="font-normal text-muted-foreground">{cert.issuer}, {cert.date}</span></p>
+              <p className="font-semibold print:font-medium">{cert.name} - <span className="font-normal text-foreground/80">{cert.issuer}, {cert.date}</span></p>
             </div>
           ))}
         </div>
@@ -116,11 +116,11 @@ export function TemplateClassic({ data }: { data: ResumeData }) {
 
 
   return (
-    <div id="cv-container" className="printable-area max-w-4xl mx-auto bg-card p-8 sm:p-12 print:p-0 shadow-lg rounded-lg print:shadow-none print:rounded-none">
+    <div id="cv-container" className="printable-area max-w-4xl mx-auto bg-card p-8 sm:p-12 print:p-8 shadow-lg rounded-lg print:shadow-none print:rounded-none">
       <header className="text-left border-b border-border pb-6 mb-6 print:pb-4 print:mb-4">
         <h1 className="text-4xl sm:text-5xl print:text-4xl font-bold font-headline text-primary">{data.personalInfo.name}</h1>
-        <p className="text-xl print:text-lg text-muted-foreground mt-2">{data.personalInfo.title}</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 mt-4 print:mt-2 text-sm print:text-xs text-muted-foreground">
+        <p className="text-xl print:text-lg text-foreground/80 mt-2">{data.personalInfo.title}</p>
+        <div className="space-y-2 mt-4 print:mt-2 text-sm print:text-xs text-foreground/80">
           {data.personalInfo.email && <a href={`mailto:${data.personalInfo.email}`} className="flex items-center gap-2 hover:text-primary transition-colors"><Mail className="h-4 w-4 print:h-3 print:w-3" />{data.personalInfo.email}</a>}
           {data.personalInfo.phone && <a href={`tel:${data.personalInfo.phone}`} className="flex items-center gap-2 hover:text-primary transition-colors"><Phone className="h-4 w-4 print:h-3 print:w-3" />{data.personalInfo.phone}</a>}
           {data.personalInfo.website && <a href={`https://${data.personalInfo.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors"><LinkIcon className="h-4 w-4 print:h-3 print:w-3" />{data.personalInfo.website}</a>}
