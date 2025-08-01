@@ -682,74 +682,76 @@ export default function DashboardPage() {
                 <CardContent className="space-y-8">
                   <div ref={editorRef}>
                     <Label className="text-base font-medium">{t('baseTemplate')}</Label>
-                    <RadioGroup
-                        value={data.personalInfo.template}
-                        onValueChange={handleTemplateChange}
-                        className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2"
-                    >
-                      <Label
-                        htmlFor="classic"
-                        className={cn( "rounded-lg border-2 p-1 transition-all cursor-pointer", data.personalInfo.template === 'classic' ? "border-primary" : "border-transparent" )}
+                    <div className="light">
+                      <RadioGroup
+                          value={data.personalInfo.template}
+                          onValueChange={handleTemplateChange}
+                          className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2"
                       >
-                            <RadioGroupItem value="classic" id="classic" className="sr-only"/>
-                            <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-background border pointer-events-none">
-                                <div className="transform scale-[0.25] origin-top-left" style={{ '--primary-hsl': data.personalInfo.themeColor } as React.CSSProperties}>
-                                    <div className="w-[1280px] h-[1810px]">
-                                        <TemplateClassic data={data} />
-                                    </div>
-                                </div>
-                            </div>
-                            <p className="text-center font-medium mt-2">{t('classic')}</p>
-                      </Label>
-                      <Label
-                        htmlFor="modern"
-                        className={cn( "rounded-lg border-2 p-1 transition-all cursor-pointer", data.personalInfo.template === 'modern' ? "border-primary" : "border-transparent" )}
-                      >
-                            <RadioGroupItem value="modern" id="modern" className="sr-only"/>
-                            <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-background border pointer-events-none">
-                                <div className="transform scale-[0.25] origin-top-left" style={{ '--primary-hsl': data.personalInfo.themeColor } as React.CSSProperties}>
-                                    <div className="w-[1280px] h-[1810px]">
-                                        <TemplateModern data={data} />
-                                    </div>
-                                </div>
-                            </div>
-                            <p className="text-center font-medium mt-2">{t('modern')}</p>
-                      </Label>
-                      <Label
-                        htmlFor="minimalist"
-                        className={cn( "rounded-lg border-2 p-1 transition-all cursor-pointer", data.personalInfo.template === 'minimalist' ? "border-primary" : "border-transparent" )}
-                      >
-                            <RadioGroupItem value="minimalist" id="minimalist" className="sr-only"/>
-                            <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-background border pointer-events-none">
-                                <div className="transform scale-[0.25] origin-top-left" style={{ '--primary-hsl': data.personalInfo.themeColor } as React.CSSProperties}>
-                                    <div className="w-[1280px] h-[1810px]">
-                                        <TemplateMinimalist data={data} />
-                                    </div>
-                                </div>
-                            </div>
-                          <p className="text-center font-medium mt-2">{t('minimalist')}</p>
-                      </Label>
-                       <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Label
-                              htmlFor="two-column"
-                              className={cn("rounded-lg border-2 p-1 transition-all cursor-pointer relative", data.personalInfo.template === 'two-column' ? "border-primary" : "border-transparent" )}
-                               onDoubleClick={handleDoubleClick}
-                            >
-                              <RadioGroupItem value="two-column" id="two-column" className="sr-only"/>
-                              <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-background border-2 border-dashed flex items-center justify-center">
-                                  <PlusCircle className="h-12 w-12 text-muted-foreground" />
+                        <Label
+                          htmlFor="classic"
+                          className={cn( "rounded-lg border-2 p-1 transition-all cursor-pointer", data.personalInfo.template === 'classic' ? "border-primary" : "border-transparent" )}
+                        >
+                              <RadioGroupItem value="classic" id="classic" className="sr-only"/>
+                              <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-card border pointer-events-none">
+                                  <div className="transform scale-[0.25] origin-top-left" style={{ '--primary-hsl': data.personalInfo.themeColor } as React.CSSProperties}>
+                                      <div className="w-[1280px] h-[1810px]">
+                                          <TemplateClassic data={data} />
+                                      </div>
+                                  </div>
                               </div>
-                              <p className="text-center font-medium mt-2">{t('createYourOwn')}</p>
-                            </Label>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>{t('doubleClickToEdit')}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </RadioGroup>
+                              <p className="text-center font-medium mt-2">{t('classic')}</p>
+                        </Label>
+                        <Label
+                          htmlFor="modern"
+                          className={cn( "rounded-lg border-2 p-1 transition-all cursor-pointer", data.personalInfo.template === 'modern' ? "border-primary" : "border-transparent" )}
+                        >
+                              <RadioGroupItem value="modern" id="modern" className="sr-only"/>
+                              <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-card border pointer-events-none">
+                                  <div className="transform scale-[0.25] origin-top-left" style={{ '--primary-hsl': data.personalInfo.themeColor } as React.CSSProperties}>
+                                      <div className="w-[1280px] h-[1810px]">
+                                          <TemplateModern data={data} />
+                                      </div>
+                                  </div>
+                              </div>
+                              <p className="text-center font-medium mt-2">{t('modern')}</p>
+                        </Label>
+                        <Label
+                          htmlFor="minimalist"
+                          className={cn( "rounded-lg border-2 p-1 transition-all cursor-pointer", data.personalInfo.template === 'minimalist' ? "border-primary" : "border-transparent" )}
+                        >
+                              <RadioGroupItem value="minimalist" id="minimalist" className="sr-only"/>
+                              <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-card border pointer-events-none">
+                                  <div className="transform scale-[0.25] origin-top-left" style={{ '--primary-hsl': data.personalInfo.themeColor } as React.CSSProperties}>
+                                      <div className="w-[1280px] h-[1810px]">
+                                          <TemplateMinimalist data={data} />
+                                      </div>
+                                  </div>
+                              </div>
+                            <p className="text-center font-medium mt-2">{t('minimalist')}</p>
+                        </Label>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Label
+                                htmlFor="two-column"
+                                className={cn("rounded-lg border-2 p-1 transition-all cursor-pointer relative", data.personalInfo.template === 'two-column' ? "border-primary" : "border-transparent" )}
+                                onDoubleClick={handleDoubleClick}
+                              >
+                                <RadioGroupItem value="two-column" id="two-column" className="sr-only"/>
+                                <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-card border-2 border-dashed flex items-center justify-center">
+                                    <PlusCircle className="h-12 w-12 text-muted-foreground" />
+                                </div>
+                                <p className="text-center font-medium mt-2">{t('createYourOwn')}</p>
+                              </Label>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{t('doubleClickToEdit')}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </RadioGroup>
+                    </div>
                   </div>
 
                   <Separator />

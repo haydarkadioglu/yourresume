@@ -104,7 +104,7 @@ export function TemplateClassic({ data }: { data: ResumeData }) {
     ...(data.customSections || []).reduce((acc, section) => {
         acc[section.id] = <CustomSectionComponent section={section} />;
         return acc;
-    }, {} as Record<string, React.ReactNode>),
+    }, {} as Record<string, React.Node>),
   };
 
   const order = data.sectionOrder || ['summary', 'skills', 'experience', 'education', 'projects', 'certifications'];
@@ -116,7 +116,7 @@ export function TemplateClassic({ data }: { data: ResumeData }) {
 
 
   return (
-    <div id="cv-container" className="printable-area max-w-4xl mx-auto bg-card p-8 sm:p-12 print:p-8 shadow-lg rounded-lg print:shadow-none print:rounded-none">
+    <div id="cv-container" className="printable-area max-w-4xl mx-auto bg-card p-8 sm:p-12 print:p-0 shadow-lg rounded-lg print:shadow-none print:rounded-none">
       <header className="text-left border-b border-border pb-6 mb-6 print:pb-4 print:mb-4">
         <h1 className="text-4xl sm:text-5xl print:text-4xl font-bold font-headline text-primary">{data.personalInfo.name}</h1>
         <p className="text-xl print:text-lg text-muted-foreground mt-2">{data.personalInfo.title}</p>

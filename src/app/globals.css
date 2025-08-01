@@ -60,6 +60,29 @@
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
   }
+
+  .light {
+    --background: 0 0% 96.1%; /* #F5F5F5 */
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary-hsl: 262 52% 47%;
+    --primary: hsl(var(--primary-hsl));
+    --primary-foreground: 356 0% 97.3%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 174 100% 29.4%; /* #009688 */
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: hsl(var(--primary-hsl));
+  }
 }
 
 @layer base {
@@ -74,7 +97,7 @@
 @media print {
   @page {
     size: A4;
-    margin: 1.5cm;
+    margin: 0;
   }
 
   body {
@@ -101,6 +124,7 @@
     box-shadow: none;
     background: white;
     color: black;
+    padding: 1.5cm;
   }
   .no-print {
     display: none !important;
