@@ -82,7 +82,7 @@ export default function CVPage({ params }: { params: { username: string } }) {
   }
 
   return (
-    <div className="min-h-screen bg-background p-4 sm:p-8 light">
+    <div className="min-h-screen bg-gray-100 p-4 sm:p-8 light">
       <div className="fixed top-4 right-4 z-10 no-print flex gap-2">
          <PrintButton username={data.personalInfo.username || 'resume'} />
       </div>

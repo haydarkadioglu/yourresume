@@ -74,22 +74,26 @@
 @media print {
   @page {
     size: A4;
-    margin: 0;
+    margin: 1cm;
   }
 
   body {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+    margin: 0;
+    padding: 0;
   }
 
   body * {
     visibility: hidden;
   }
+  
   .printable-area, .printable-area * {
     visibility: visible;
-    color-adjust: exact;
+    print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
   }
+  
   .printable-area {
     position: absolute;
     left: 0;
@@ -97,19 +101,34 @@
     width: 100%;
     height: auto;
     margin: 0;
+    padding: 0;
     border: none;
-    box-shadow: none;
-    background: white;
+    box-shadow: none !important;
+    background: white !important;
     color: black;
-    padding: 1.5cm;
+    border-radius: 0 !important;
   }
+  
   .no-print {
     display: none !important;
   }
+  
+  /* Sayfa geçişlerini optimize et */
   h1, h2, h3, h4, h5, h6 {
     page-break-after: avoid;
-  }
-  p, ul, ol, div {
     page-break-inside: avoid;
+  }
+  
+  /* Section'ların sayfa başında düzgün görünmesi için */
+  section {
+    page-break-inside: avoid;
+  }
+  
+  /* Experience ve Education item'larının bölünmemesi için */
+  .experience-item,
+  .education-item,
+  .project-item {
+    page-break-inside: avoid;
+    margin-bottom: 12pt;
   }
 }
