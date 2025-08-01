@@ -39,6 +39,7 @@ export default function CVPage({ params }: { params: { username: string } }) {
 
   useEffect(() => {
     async function fetchData(currentUsername: string) {
+      setLoading(true);
       try {
         const resumeData = await getResumeDataByUsername(currentUsername);
         if (!resumeData) {
@@ -55,6 +56,9 @@ export default function CVPage({ params }: { params: { username: string } }) {
     }
     if (username) {
         fetchData(username);
+    } else {
+        setLoading(false);
+        notFound();
     }
   }, [username]);
 
