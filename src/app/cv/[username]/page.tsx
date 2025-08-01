@@ -9,7 +9,7 @@ import { TemplateClassic } from "@/components/cv-templates/TemplateClassic";
 import { TemplateModern } from "@/components/cv-templates/TemplateModern";
 import { TemplateMinimalist } from "@/components/cv-templates/TemplateMinimalist";
 import { TemplateTwoColumn } from "@/components/cv-templates/TemplateTwoColumn";
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import { Loader2 } from "lucide-react";
 
 function Resume({ data }: { data: ResumeData }) {
@@ -32,11 +32,11 @@ function Resume({ data }: { data: ResumeData }) {
   )
 }
 
-export default function CVPage({ params }: { params: { username: string } }) {
+export default function CVPage({ params }: { params: Promise<{ username: string }> }) {
   const [data, setData] = useState<ResumeData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const { username } = params;
+  const { username } = use(params);
 
   useEffect(() => {
     async function fetchData() {

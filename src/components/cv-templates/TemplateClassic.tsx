@@ -2,7 +2,7 @@
 import type { ResumeData, CustomSection } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Mail, Phone, Link as LinkIcon, Linkedin, Github } from "lucide-react";
+import { Link as LinkIcon } from "lucide-react";
 import React from "react";
 
 const CustomSectionComponent = ({ section }: { section: CustomSection }) => (
@@ -121,11 +121,11 @@ export function TemplateClassic({ data }: { data: ResumeData }) {
         <h1 className="text-4xl sm:text-5xl print:text-4xl font-bold font-headline text-gray-900">{data.personalInfo.name}</h1>
         <p className="text-xl print:text-lg text-gray-600 mt-2">{data.personalInfo.title}</p>
         <div className="space-y-2 mt-4 print:mt-2 text-sm print:text-xs text-gray-600">
-          {data.personalInfo.email && <a href={`mailto:${data.personalInfo.email}`} className="flex items-center gap-2 hover:text-blue-600 transition-colors"><Mail className="h-4 w-4 print:h-3 print:w-3" />{data.personalInfo.email}</a>}
-          {data.personalInfo.phone && <a href={`tel:${data.personalInfo.phone}`} className="flex items-center gap-2 hover:text-green-600 transition-colors"><Phone className="h-4 w-4 print:h-3 print:w-3" />{data.personalInfo.phone}</a>}
-          {data.personalInfo.website && <a href={`https://${data.personalInfo.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-purple-600 transition-colors"><LinkIcon className="h-4 w-4 print:h-3 print:w-3" />{data.personalInfo.website}</a>}
-          {data.personalInfo.linkedin && <a href={`https://linkedin.com/in/${data.personalInfo.linkedin}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-blue-700 transition-colors"><Linkedin className="h-4 w-4 print:h-3 print:w-3" />{data.personalInfo.linkedin}</a>}
-          {data.personalInfo.github && <a href={`https://github.com/${data.personalInfo.github}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-gray-800 transition-colors"><Github className="h-4 w-4 print:h-3 print:w-3" />{data.personalInfo.github}</a>}
+          {data.personalInfo.email && <a href={`mailto:${data.personalInfo.email}`} className="block hover:text-blue-600 transition-colors">Email: {data.personalInfo.email}</a>}
+          {data.personalInfo.phone && <a href={`tel:${data.personalInfo.phone}`} className="block hover:text-green-600 transition-colors">Phone: {data.personalInfo.phone}</a>}
+          {data.personalInfo.website && <a href={`https://${data.personalInfo.website}`} target="_blank" rel="noopener noreferrer" className="block hover:text-purple-600 transition-colors">Website: {data.personalInfo.website}</a>}
+          {data.personalInfo.linkedin && <a href={`https://linkedin.com/in/${data.personalInfo.linkedin}`} target="_blank" rel="noopener noreferrer" className="block hover:text-blue-700 transition-colors">LinkedIn: {data.personalInfo.linkedin}</a>}
+          {data.personalInfo.github && <a href={`https://github.com/${data.personalInfo.github}`} target="_blank" rel="noopener noreferrer" className="block hover:text-gray-800 transition-colors">GitHub: {data.personalInfo.github}</a>}
         </div>
       </header>
 
