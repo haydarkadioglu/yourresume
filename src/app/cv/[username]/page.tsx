@@ -35,31 +35,32 @@ function Resume({ data }: { data: ResumeData }) {
 export default function CVPage({ params }: { params: { username: string } }) {
   const [data, setData] = useState<ResumeData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const { username } = params;
 
   useEffect(() => {
-    async function fetchData(currentUsername: string) {
+    async function fetchData() {
+      if (!username) {
+        setLoading(false);
+        setError(true);
+        return;
+      }
       setLoading(true);
       try {
-        const resumeData = await getResumeDataByUsername(currentUsername);
+        const resumeData = await getResumeDataByUsername(username);
         if (!resumeData) {
-          notFound();
+          setError(true);
         } else {
           setData(resumeData);
         }
-      } catch (error) {
-        console.error("Failed to fetch resume data:", error);
-        notFound();
+      } catch (err) {
+        console.error("Failed to fetch resume data:", err);
+        setError(true);
       } finally {
         setLoading(false);
       }
     }
-    if (username) {
-        fetchData(username);
-    } else {
-        setLoading(false);
-        notFound();
-    }
+    fetchData();
   }, [username]);
 
   useEffect(() => {
@@ -76,7 +77,7 @@ export default function CVPage({ params }: { params: { username: string } }) {
     );
   }
 
-  if (!data) {
+  if (error || !data) {
     return notFound();
   }
 
