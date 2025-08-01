@@ -35,11 +35,12 @@ function Resume({ data }: { data: ResumeData }) {
 export default function CVPage({ params }: { params: { username: string } }) {
   const [data, setData] = useState<ResumeData | null>(null);
   const [loading, setLoading] = useState(true);
+  const { username } = params;
 
   useEffect(() => {
-    async function fetchData() {
+    async function fetchData(currentUsername: string) {
       try {
-        const resumeData = await getResumeDataByUsername(params.username);
+        const resumeData = await getResumeDataByUsername(currentUsername);
         if (!resumeData) {
           notFound();
         } else {
@@ -52,11 +53,13 @@ export default function CVPage({ params }: { params: { username: string } }) {
         setLoading(false);
       }
     }
-    fetchData();
-  }, [params.username]);
+    if (username) {
+        fetchData(username);
+    }
+  }, [username]);
 
   useEffect(() => {
-    if (data?.personalInfo?.username) {
+    if (data?.personalInfo?.name) {
       document.title = `${data.personalInfo.name} | CV`;
     }
   }, [data]);
