@@ -1,7 +1,8 @@
 
+
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { ResumeData, Experience, Education, Project, Certification, CustomSection } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, PlusCircle, Loader2, LayoutTemplate } from "lucide-react";
+import { Trash2, PlusCircle, Loader2, LayoutTemplate, Palette, Info } from "lucide-react";
 import Link from 'next/link';
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
@@ -28,10 +29,19 @@ import { TemplateTwoColumn } from "@/components/cv-templates/TemplateTwoColumn";
 import { cn } from "@/lib/utils";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/context/LanguageContext";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-const SIDEBAR_ELIGIBLE = ['skills', 'education', 'certifications'];
-const MAIN_ELIGIBLE = ['experience', 'projects'];
-const DEFAULT_SECTION_ORDER = ['skills', 'experience', 'education', 'projects', 'certifications'];
+
+const PREDEFINED_COLORS = [
+  "262 52% 47%", // Default Purple
+  "217 91% 60%", // Blue
+  "142 76% 36%", // Green
+  "24 98% 52%", // Orange
+  "0 84% 60%", // Red
+  "330 84% 60%", // Pink
+  "240 6% 10%", // Dark Gray
+];
+
 
 export default function DashboardPage() {
   const [data, setData] = useState<ResumeData | null>(null);
@@ -39,6 +49,7 @@ export default function DashboardPage() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isPasswordSaving, setIsPasswordSaving] = useState(false);
+  const editorRef = useRef<HTMLDivElement>(null);
 
   const { toast } = useToast();
   const { user, loading: authLoading } = useAuth();
@@ -56,16 +67,18 @@ export default function DashboardPage() {
       const fetchData = async () => {
         let resumeData = await getResumeData(user.uid);
         if (resumeData) {
-            if (!resumeData.personalInfo.template) {
-                resumeData.personalInfo.template = 'classic';
-            }
+            resumeData.personalInfo = {
+              ...resumeData.personalInfo,
+              template: resumeData.personalInfo.template || 'classic',
+              themeColor: resumeData.personalInfo.themeColor || PREDEFINED_COLORS[0],
+            };
             if (!resumeData.sectionOrder) {
-                resumeData.sectionOrder = DEFAULT_SECTION_ORDER;
+                resumeData.sectionOrder = ['contact', 'skills', 'experience', 'education', 'projects', 'certifications'];
             }
              if (!resumeData.layout) {
               resumeData.layout = {
-                sidebar: SIDEBAR_ELIGIBLE,
-                main: MAIN_ELIGIBLE,
+                sidebar: ['contact', 'skills', 'education', 'certifications'],
+                main: ['experience', 'projects'],
               };
             }
             if (!resumeData.customSections) {
@@ -80,11 +93,12 @@ export default function DashboardPage() {
                   email: user.email || '',
                   username: '',
                   template: 'classic',
+                  themeColor: PREDEFINED_COLORS[0],
               },
-              sectionOrder: DEFAULT_SECTION_ORDER,
+              sectionOrder: ['contact', 'skills', 'experience', 'education', 'projects', 'certifications'],
               layout: {
-                sidebar: SIDEBAR_ELIGIBLE,
-                main: MAIN_ELIGIBLE,
+                sidebar: ['contact', 'skills', 'education', 'certifications'],
+                main: ['experience', 'projects'],
               },
               customSections: [],
           })
@@ -205,6 +219,19 @@ export default function DashboardPage() {
           }
       })
   }
+
+  const handleColorChange = (value: string) => {
+      setData(prev => {
+          if(!prev) return null;
+          return {
+              ...prev,
+              personalInfo: {
+                  ...prev.personalInfo,
+                  themeColor: value
+              }
+          }
+      })
+  }
   
   const handleItemChange = <T extends { id: string }>(
     field: keyof ResumeData,
@@ -235,8 +262,9 @@ export default function DashboardPage() {
         if (!prev) return null;
         const newSection = { id: `custom_${crypto.randomUUID()}`, title: 'New Section', content: '' };
         const newCustomSections = [...(prev.customSections || []), newSection];
-        const newSectionOrder = [...(prev.sectionOrder || []), newSection.id];
         
+        // Add to sectionOrder and layout
+        const newSectionOrder = [...(prev.sectionOrder || []), newSection.id];
         const newLayout = {
             ...prev.layout,
             main: [...(prev.layout?.main || []), newSection.id]
@@ -266,6 +294,10 @@ export default function DashboardPage() {
     });
   };
 
+  const handleDoubleClick = () => {
+    router.push('/dashboard/layout-editor');
+  };
+
 
   if (authLoading || !user || !data) {
     return (
@@ -274,8 +306,6 @@ export default function DashboardPage() {
       </div>
     );
   }
-
-  const sectionOrder = data.sectionOrder || DEFAULT_SECTION_ORDER;
 
   const sectionCards: Record<string, React.ReactNode> = {
     personalInfo: (
@@ -631,8 +661,8 @@ export default function DashboardPage() {
                     {t('appearanceManagerDesc')}
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  <div>
+                <CardContent className="space-y-8">
+                  <div ref={editorRef}>
                     <Label className="text-base font-medium">{t('baseTemplate')}</Label>
                     <RadioGroup
                         value={data.personalInfo.template}
@@ -645,7 +675,7 @@ export default function DashboardPage() {
                       >
                             <RadioGroupItem value="classic" id="classic" className="sr-only"/>
                             <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-background border pointer-events-none">
-                                <div className="transform scale-[0.25] origin-top-left">
+                                <div className="transform scale-[0.25] origin-top-left" style={{ '--primary-hsl': data.personalInfo.themeColor } as React.CSSProperties}>
                                     <div className="w-[1280px] h-[1810px]">
                                         <TemplateClassic data={data} />
                                     </div>
@@ -659,7 +689,7 @@ export default function DashboardPage() {
                       >
                             <RadioGroupItem value="modern" id="modern" className="sr-only"/>
                             <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-background border pointer-events-none">
-                                <div className="transform scale-[0.25] origin-top-left">
+                                <div className="transform scale-[0.25] origin-top-left" style={{ '--primary-hsl': data.personalInfo.themeColor } as React.CSSProperties}>
                                     <div className="w-[1280px] h-[1810px]">
                                         <TemplateModern data={data} />
                                     </div>
@@ -673,7 +703,7 @@ export default function DashboardPage() {
                       >
                             <RadioGroupItem value="minimalist" id="minimalist" className="sr-only"/>
                             <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-background border pointer-events-none">
-                                <div className="transform scale-[0.25] origin-top-left">
+                                <div className="transform scale-[0.25] origin-top-left" style={{ '--primary-hsl': data.personalInfo.themeColor } as React.CSSProperties}>
                                     <div className="w-[1280px] h-[1810px]">
                                         <TemplateMinimalist data={data} />
                                     </div>
@@ -681,23 +711,51 @@ export default function DashboardPage() {
                             </div>
                           <p className="text-center font-medium mt-2">{t('minimalist')}</p>
                       </Label>
-                       <Label
-                          htmlFor="two-column"
-                          className={cn( "rounded-lg border-2 p-1 transition-all cursor-pointer", data.personalInfo.template === 'two-column' ? "border-primary" : "border-transparent" )}
-                        >
-                          <RadioGroupItem value="two-column" id="two-column" className="sr-only"/>
-                          <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-background border pointer-events-none">
-                               <div className="transform scale-[0.25] origin-top-left">
-                                    <div className="w-[1280px] h-[1810px]">
-                                        <TemplateTwoColumn data={data} />
-                                    </div>
-                                </div>
-                          </div>
-                          <p className="text-center font-medium mt-2">{t('twoColumn')}</p>
-                       </Label>
+                       <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Label
+                              htmlFor="two-column"
+                              className={cn("rounded-lg border-2 p-1 transition-all cursor-pointer relative", data.personalInfo.template === 'two-column' ? "border-primary" : "border-transparent" )}
+                               onDoubleClick={handleDoubleClick}
+                            >
+                              <RadioGroupItem value="two-column" id="two-column" className="sr-only"/>
+                              <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-background border-2 border-dashed flex items-center justify-center">
+                                  <PlusCircle className="h-12 w-12 text-muted-foreground" />
+                              </div>
+                              <p className="text-center font-medium mt-2">{t('createYourOwn')}</p>
+                            </Label>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{t('doubleClickToEdit')}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </RadioGroup>
                   </div>
+                  
+                  <Separator />
 
+                  <div>
+                     <Label className="text-base font-medium flex items-center gap-2"><Palette /> {t('themeColor')}</Label>
+                     <p className="text-sm text-muted-foreground mb-2">{t('themeColorDesc')}</p>
+                     <div className="flex flex-wrap gap-3">
+                        {PREDEFINED_COLORS.map(colorHsl => (
+                          <button
+                            key={colorHsl}
+                            onClick={() => handleColorChange(colorHsl)}
+                            className={cn(
+                              "h-8 w-8 rounded-full border-2 transition-all",
+                              data.personalInfo.themeColor === colorHsl ? 'border-ring' : 'border-transparent'
+                            )}
+                            style={{ backgroundColor: `hsl(${colorHsl})` }}
+                          />
+                        ))}
+                     </div>
+                  </div>
+
+                  <Separator />
+                  
                   <Button onClick={() => router.push('/dashboard/layout-editor')} variant="outline" className="gap-2">
                      <LayoutTemplate /> {t('customizeOrderAndLayout')}
                   </Button>

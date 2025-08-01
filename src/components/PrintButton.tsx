@@ -1,11 +1,15 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 
-export function PrintButton() {
+export function PrintButton({ username }: { username: string }) {
   const handlePrint = () => {
+    const originalTitle = document.title;
+    document.title = `${username}-resume`;
     window.print();
+    document.title = originalTitle;
   };
 
   return (

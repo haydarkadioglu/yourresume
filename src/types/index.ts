@@ -1,4 +1,5 @@
 
+
 export interface ResumeData {
   personalInfo: {
     name: string;
@@ -11,6 +12,7 @@ export interface ResumeData {
     summary: string;
     username?: string;
     template: 'classic' | 'modern' | 'minimalist' | 'two-column';
+    themeColor?: string;
   };
   skills: string[];
   experience: Experience[];

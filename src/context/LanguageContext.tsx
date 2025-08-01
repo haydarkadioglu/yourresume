@@ -61,7 +61,10 @@ const translations = {
     classic: "Classic",
     modern: "Modern",
     minimalist: "Minimalist",
-    twoColumn: "Custom",
+    createYourOwn: "Create Your Own",
+    doubleClickToEdit: "Double-click to edit layout",
+    themeColor: "Theme Color",
+    themeColorDesc: "Choose a primary color for your resume.",
     passwordChange: "Password Change",
     passwordChangeDesc: "Update your password here. You will be logged out after a successful change.",
     newPassword: "New Password",
@@ -124,8 +127,8 @@ const translations = {
     sidebar: "Sidebar",
     mainContentEmpty: "Add sections to the main content area.",
     sidebarEmpty: "Add sections to the sidebar.",
-    customizeLayout: "Customize Your Layout",
-    customizeLayoutDesc: "Choose your preferred resume structure. Your section order applies to all templates, but the two-column layout is specific to the 'Custom' template.",
+    customizeLayout: "Design Your Resume Freely",
+    customizeLayoutDesc: "You're in full control. Want a clean single-column layout? Simply use the main content area. Prefer a two-column style? Split your sections between the main area and sidebar. It’s like designing your CV in Canva: Flexible, visual, and personal.",
     saveReminder: "✅ When you're done customizing, don't forget to click Save Layout!",
     layoutSavedSuccess: "Your layout preferences have been saved.",
     layoutAndOrder: "Layout and Order",
@@ -133,12 +136,13 @@ const translations = {
     singleColumn: "Single Column",
     twoColumnLayout: "Two Columns",
     sectionOrder: "Section Order",
-    sectionOrderDesc: "This order applies to all templates.",
+    sectionOrderDesc: "This order applies to all templates. Drag to reorder.",
     customizeOrderAndLayout: "Customize Order & Layout",
     customSections: "Custom Sections",
     customSectionsDesc: "Add your own sections like 'References' or 'Awards'.",
     addCustomSection: "Add Custom Section",
     sectionTitle: "Section Title",
+    content: "Content",
     contactInfo: "Contact Info",
   },
   tr: {
@@ -197,7 +201,10 @@ const translations = {
     classic: "Klasik",
     modern: "Modern",
     minimalist: "Minimalist",
-    twoColumn: "Özel",
+    createYourOwn: "Kendin Oluştur",
+    doubleClickToEdit: "Düzeni düzenlemek için çift tıkla",
+    themeColor: "Tema Rengi",
+    themeColorDesc: "Özgeçmişiniz için bir ana renk seçin.",
     passwordChange: "Şifre Değiştirme",
     passwordChangeDesc: "Şifrenizi buradan güncelleyin. Başarılı bir değişiklikten sonra çıkış yapılacaktır.",
     newPassword: "Yeni Şifre",
@@ -260,8 +267,8 @@ const translations = {
     sidebar: "Kenar Çubuğu",
     mainContentEmpty: "Ana içerik alanına bölüm ekleyin.",
     sidebarEmpty: "Kenar çubuğuna bölüm ekleyin.",
-    customizeLayout: "Yerleşim Düzeninizi Özelleştirin",
-    customizeLayoutDesc: "Tercih ettiğiniz özgeçmiş yapısını seçin. Bölüm sıranız tüm şablonlar için geçerlidir, ancak iki sütunlu yerleşim 'Özel' şablona özgüdür.",
+    customizeLayout: "Özgeçmişinizi Özgürce Tasarlayın",
+    customizeLayoutDesc: "Tüm kontrol sizde. Tek sütunlu temiz bir düzen mi istiyorsunuz? Tüm bölümleri ana içerik alanına taşımanız yeterli. İki sütunlu profesyonel bir stil mi tercih edersiniz? Bölümlerinizi ana alan ve kenar çubuğu arasında bölün. Tıpkı Canva'da CV tasarlamak gibi: Esnek, görsel ve kişisel.",
     saveReminder: "✅ Özelleştirmeyi bitirdiğinde, Düzeni Kaydet'e tıklamayı unutma!",
     layoutSavedSuccess: "Yerleşim tercihleriniz kaydedildi.",
     layoutAndOrder: "Yerleşim ve Sıralama",
@@ -269,12 +276,13 @@ const translations = {
     singleColumn: "Tek Sütun",
     twoColumnLayout: "İki Sütun",
     sectionOrder: "Bölüm Sırası",
-    sectionOrderDesc: "Bu sıralama tüm şablonlara uygulanır.",
+    sectionOrderDesc: "Bu sıralama tüm şablonlara uygulanır. Sıralamak için sürükleyin.",
     customizeOrderAndLayout: "Sıra ve Yerleşimi Özelleştir",
     customSections: "Özel Bölümler",
     customSectionsDesc: "'Referanslar' veya 'Ödüller' gibi kendi bölümlerinizi ekleyin.",
     addCustomSection: "Özel Bölüm Ekle",
     sectionTitle: "Bölüm Başlığı",
+    content: "İçerik",
     contactInfo: "İletişim Bilgileri",
   },
 };
@@ -294,7 +302,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   const [language, setLanguage] = useState<Language>("en");
 
   const t = useCallback((key: TranslationKeys, params?: { [key: string]: string }) => {
-    let translation = translations[language][key] || translations['en'][key];
+    let translation = translations[language]?.[key] || translations['en'][key];
     if (params) {
       for (const paramKey in params) {
         translation = translation.replace(`{${paramKey}}`, params[paramKey]);

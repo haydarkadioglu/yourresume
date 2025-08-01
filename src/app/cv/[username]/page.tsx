@@ -1,3 +1,6 @@
+
+"use client";
+
 import { getResumeDataByUsername } from "@/lib/firestore";
 import { PrintButton } from "@/components/PrintButton";
 import { notFound } from "next/navigation";
@@ -6,37 +9,75 @@ import { TemplateClassic } from "@/components/cv-templates/TemplateClassic";
 import { TemplateModern } from "@/components/cv-templates/TemplateModern";
 import { TemplateMinimalist } from "@/components/cv-templates/TemplateMinimalist";
 import { TemplateTwoColumn } from "@/components/cv-templates/TemplateTwoColumn";
+import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
 
 function Resume({ data }: { data: ResumeData }) {
   const template = data.personalInfo.template || "classic";
-  
-  switch (template) {
-    case 'modern':
-      return <TemplateModern data={data} />;
-    case 'minimalist':
-      return <TemplateMinimalist data={data} />;
-    case 'two-column':
-      return <TemplateTwoColumn data={data} />;
-    case 'classic':
-    default:
-      return <TemplateClassic data={data} />;
-  }
+  const themeColor = data.personalInfo.themeColor;
+
+  const style = themeColor ? { '--primary-hsl': themeColor } as React.CSSProperties : {};
+
+  return (
+    <div style={style}>
+      {
+        {
+          'classic': <TemplateClassic data={data} />,
+          'modern': <TemplateModern data={data} />,
+          'minimalist': <TemplateMinimalist data={data} />,
+          'two-column': <TemplateTwoColumn data={data} />
+        }[template] || <TemplateClassic data={data} />
+      }
+    </div>
+  )
 }
 
+export default function CVPage({ params }: { params: { username: string } }) {
+  const [data, setData] = useState<ResumeData | null>(null);
+  const [loading, setLoading] = useState(true);
 
-export default async function CVPage({ params }: { params: { username: string } }) {
-  const data = await getResumeDataByUsername(params.username);
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const resumeData = await getResumeDataByUsername(params.username);
+        if (!resumeData) {
+          notFound();
+        } else {
+          setData(resumeData);
+        }
+      } catch (error) {
+        console.error("Failed to fetch resume data:", error);
+        notFound();
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, [params.username]);
+
+  useEffect(() => {
+    if (data?.personalInfo?.username) {
+      document.title = `${data.personalInfo.name} | CV`;
+    }
+  }, [data]);
+
+  if (loading) {
+     return (
+      <div className="flex justify-center items-center min-h-screen bg-background">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   if (!data) {
-    notFound();
+    return notFound();
   }
 
   return (
     <div className="min-h-screen bg-background p-4 sm:p-8">
       <div className="fixed top-4 right-4 z-10 no-print flex gap-2">
-         <PrintButton />
+         <PrintButton username={data.personalInfo.username || 'resume'} />
       </div>
-
       <Resume data={data} />
     </div>
   );
