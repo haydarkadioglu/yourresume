@@ -354,6 +354,24 @@ export default function DashboardPage() {
             <Label htmlFor="summary">{t('summary')}</Label>
             <Textarea id="summary" name="summary" value={data.personalInfo.summary} onChange={handlePersonalInfoChange} rows={5} />
           </div>
+          <div>
+            <Separator className="my-6"/>
+             <Label className="text-base font-medium flex items-center gap-2"><Palette /> {t('themeColor')}</Label>
+             <p className="text-sm text-muted-foreground mb-2">{t('themeColorDesc')}</p>
+             <div className="flex flex-wrap gap-3">
+                {PREDEFINED_COLORS.map(colorHsl => (
+                  <button
+                    key={colorHsl}
+                    onClick={() => handleColorChange(colorHsl)}
+                    className={cn(
+                      "h-8 w-8 rounded-full border-2 transition-all",
+                      data.personalInfo.themeColor === colorHsl ? 'border-ring' : 'border-transparent'
+                    )}
+                    style={{ backgroundColor: `hsl(${colorHsl})` }}
+                  />
+                ))}
+             </div>
+          </div>
           <Button onClick={() => handleSave(t('personalInfo'))} disabled={isSaving} className="bg-accent hover:bg-accent/90">
             {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> {t('saving')}</> : t('saveSection')}
           </Button>
@@ -732,26 +750,6 @@ export default function DashboardPage() {
                         </Tooltip>
                       </TooltipProvider>
                     </RadioGroup>
-                  </div>
-                  
-                  <Separator />
-
-                  <div>
-                     <Label className="text-base font-medium flex items-center gap-2"><Palette /> {t('themeColor')}</Label>
-                     <p className="text-sm text-muted-foreground mb-2">{t('themeColorDesc')}</p>
-                     <div className="flex flex-wrap gap-3">
-                        {PREDEFINED_COLORS.map(colorHsl => (
-                          <button
-                            key={colorHsl}
-                            onClick={() => handleColorChange(colorHsl)}
-                            className={cn(
-                              "h-8 w-8 rounded-full border-2 transition-all",
-                              data.personalInfo.themeColor === colorHsl ? 'border-ring' : 'border-transparent'
-                            )}
-                            style={{ backgroundColor: `hsl(${colorHsl})` }}
-                          />
-                        ))}
-                     </div>
                   </div>
 
                   <Separator />
