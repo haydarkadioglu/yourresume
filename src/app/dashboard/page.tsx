@@ -26,6 +26,7 @@ import { TemplateClassic } from "@/components/cv-templates/TemplateClassic";
 import { TemplateModern } from "@/components/cv-templates/TemplateModern";
 import { TemplateMinimalist } from "@/components/cv-templates/TemplateMinimalist";
 import { TemplateTwoColumn } from "@/components/cv-templates/TemplateTwoColumn";
+import { TemplateCustom } from "@/components/cv-templates/TemplateCustom";
 import { cn } from "@/lib/utils";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/context/LanguageContext";
@@ -49,12 +50,22 @@ export default function DashboardPage() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isPasswordSaving, setIsPasswordSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState("content");
   const editorRef = useRef<HTMLDivElement>(null);
 
   const { toast } = useToast();
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const { t } = useLanguage();
+
+  // Handle query parameters for tab switching
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tab = urlParams.get('tab');
+    if (tab && ['content', 'appearance', 'settings'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, []);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -207,7 +218,27 @@ export default function DashboardPage() {
     })
   }
 
-  const handleTemplateChange = (value: 'classic' | 'modern' | 'minimalist' | 'two-column') => {
+  const handleTemplateChange = (value: 'classic' | 'modern' | 'minimalist' | 'two-column' | 'custom') => {
+      if (value === 'custom') {
+        // If user already has a custom template, just select it
+        if (data?.customTemplate) {
+          setData(prev => {
+            if(!prev) return null;
+            return {
+              ...prev,
+              personalInfo: {
+                ...prev.personalInfo,
+                template: value
+              }
+            }
+          });
+        } else {
+          // If no custom template exists, redirect to template builder
+          router.push('/dashboard/template-builder');
+        }
+        return;
+      }
+      
       setData(prev => {
           if(!prev) return null;
           return {
@@ -266,7 +297,7 @@ export default function DashboardPage() {
         // Add to sectionOrder and layout
         const newSectionOrder = [...(prev.sectionOrder || []), newSection.id];
         const newLayout = {
-            ...prev.layout,
+            sidebar: prev.layout?.sidebar || [],
             main: [...(prev.layout?.main || []), newSection.id]
         };
 
@@ -654,7 +685,7 @@ export default function DashboardPage() {
       </header>
 
       <main className="container mx-auto p-4 sm:p-8">
-        <Tabs defaultValue="content" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="content">{t('content')}</TabsTrigger>
             <TabsTrigger value="appearance">{t('appearance')}</TabsTrigger>
@@ -734,19 +765,44 @@ export default function DashboardPage() {
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Label
-                                htmlFor="two-column"
-                                className={cn("rounded-lg border-2 p-1 transition-all cursor-pointer relative", data.personalInfo.template === 'two-column' ? "border-primary" : "border-transparent" )}
-                                onDoubleClick={handleDoubleClick}
+                                htmlFor="custom"
+                                className={cn("rounded-lg border-2 p-1 transition-all cursor-pointer relative", data.personalInfo.template === 'custom' ? "border-primary" : "border-transparent" )}
                               >
-                                <RadioGroupItem value="two-column" id="two-column" className="sr-only"/>
-                                <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-card border-2 border-dashed flex items-center justify-center">
-                                    <PlusCircle className="h-12 w-12 text-muted-foreground" />
+                                <RadioGroupItem value="custom" id="custom" className="sr-only"/>
+                                <div className="w-full aspect-[3/4] rounded-md overflow-hidden bg-card border pointer-events-none">
+                                  {data.customTemplate ? (
+                                    <div className="transform scale-[0.25] origin-top-left" style={{ '--primary-hsl': data.personalInfo.themeColor } as React.CSSProperties}>
+                                      <div className="w-[1280px] h-[1810px]">
+                                        <TemplateCustom data={data} />
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <div className="w-full h-full border-2 border-dashed flex items-center justify-center">
+                                      <PlusCircle className="h-12 w-12 text-muted-foreground" />
+                                    </div>
+                                  )}
                                 </div>
-                                <p className="text-center font-medium mt-2">{t('createYourOwn')}</p>
+                                <p className="text-center font-medium mt-2">
+                                  {data.customTemplate ? data.customTemplate.name : t('createYourOwn')}
+                                </p>
+                                {data.customTemplate && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="absolute top-2 right-2 h-7 w-7 p-0"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      router.push('/dashboard/template-builder');
+                                    }}
+                                  >
+                                    ✏️
+                                  </Button>
+                                )}
                               </Label>
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p>{t('doubleClickToEdit')}</p>
+                              <p>{data.customTemplate ? 'Click to select or edit your custom template' : 'Create your own unique template'}</p>
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
@@ -755,10 +811,6 @@ export default function DashboardPage() {
                   </div>
 
                   <Separator />
-                  
-                  <Button onClick={() => router.push('/dashboard/layout-editor')} variant="outline" className="gap-2">
-                     <LayoutTemplate /> {t('customizeOrderAndLayout')}
-                  </Button>
                   
                   <Button onClick={() => handleSave(t('appearance'))} disabled={isSaving} className="bg-accent hover:bg-accent/90">
                     {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> {t('saving')}</> : t('saveAppearance')}

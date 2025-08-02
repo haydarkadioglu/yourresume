@@ -9,6 +9,7 @@ import { TemplateClassic } from "@/components/cv-templates/TemplateClassic";
 import { TemplateModern } from "@/components/cv-templates/TemplateModern";
 import { TemplateMinimalist } from "@/components/cv-templates/TemplateMinimalist";
 import { TemplateTwoColumn } from "@/components/cv-templates/TemplateTwoColumn";
+import { TemplateCustom } from "@/components/cv-templates/TemplateCustom";
 import { useEffect, useState, use } from "react";
 import { Loader2 } from "lucide-react";
 
@@ -25,7 +26,8 @@ function Resume({ data }: { data: ResumeData }) {
           'classic': <TemplateClassic data={data} />,
           'modern': <TemplateModern data={data} />,
           'minimalist': <TemplateMinimalist data={data} />,
-          'two-column': <TemplateTwoColumn data={data} />
+          'two-column': <TemplateTwoColumn data={data} />,
+          'custom': <TemplateCustom data={data} />
         }[template] || <TemplateClassic data={data} />
       }
     </div>

@@ -131,4 +131,19 @@
     page-break-inside: avoid;
     margin-bottom: 12pt;
   }
+  
+  /* Custom template için özel print düzenlemeleri */
+  .custom-template-two-column {
+    display: grid !important;
+    grid-template-columns: 1fr 2.5fr !important;
+    gap: 1.5rem !important;
+  }
+  
+  .custom-template-left-column {
+    break-inside: avoid;
+  }
+  
+  .custom-template-right-column {
+    break-inside: avoid;
+  }
 }

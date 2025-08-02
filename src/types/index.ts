@@ -1,5 +1,27 @@
 
 
+export interface CustomTemplate {
+  id: string;
+  name: string;
+  layout: 'single' | 'two-column' | 'three-column';
+  primaryColor: string;
+  secondaryColor: string;
+  fontFamily: 'sans' | 'serif' | 'mono';
+  fontSize: 'small' | 'medium' | 'large';
+  spacing: 'compact' | 'normal' | 'relaxed';
+  headerStyle: 'centered' | 'left-aligned' | 'right-aligned';
+  sectionStyle: 'minimal' | 'bordered' | 'colored-headers';
+  showIcons: boolean;
+  borderRadius: 'none' | 'small' | 'medium' | 'large';
+  pageMargin: 'tight' | 'normal' | 'wide';
+  sectionOrder: string[];
+  columnConfig?: {
+    leftColumn: string[];
+    centerColumn?: string[];
+    rightColumn: string[];
+  };
+}
+
 export interface ResumeData {
   personalInfo: {
     name: string;
@@ -11,9 +33,10 @@ export interface ResumeData {
     github: string;
     summary: string;
     username?: string;
-    template: 'classic' | 'modern' | 'minimalist' | 'two-column';
+    template: 'classic' | 'modern' | 'minimalist' | 'two-column' | 'custom';
     themeColor?: string;
   };
+  customTemplate?: CustomTemplate;
   skills: string[];
   experience: Experience[];
   education: Education[];
